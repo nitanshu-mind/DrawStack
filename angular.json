@@ -30,7 +30,10 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "src/assets/js/raphael.min.js",
+              "src/assets/js/raphael_free_transform.js"
+            ]
           },
           "configurations": {
             "production": {
