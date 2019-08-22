@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { PaperConfig } from './paper.config'
 import { Corridor } from '../model/corridor';
 import * as $ from "jquery";
+import {Point} from '../model/point'
 declare const svgPanZoom: any;
 declare const Raphael: any; // 
 //declare const snapPoint: any;
@@ -24,6 +25,8 @@ export class PaperComponent implements OnInit {
   private get canvas(): HTMLCanvasElement {
     return this.canvasRef.nativeElement;
   }
+  freeFormDrawingInfo: FreeFormDrawingData = new FreeFormDrawingData();
+
   constructor() { }
 
   ngOnInit() {
@@ -52,7 +55,7 @@ export class PaperComponent implements OnInit {
     this.paper = Raphael(this.canvas.id, w, h);
     this.drawAxis(this.paper, PaperConfig.gridGap, PaperConfig.offset, PaperConfig.ratio, PaperConfig.containerWidth, PaperConfig.containerHeight, true);
     // this.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridor, this.paperConfig);
-    this.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawInfo);
+    this.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
 
   }
 
@@ -327,11 +330,11 @@ freeFormConfig = {
   ignoreDeviation: 10
 }
 circle = [];
-freeFormDrawInfo: {
-  drawPoints: [];
-  realPoints: any;
-  paper: any;
-}
+// freeFormDrawInfo: {
+//   drawPoints: [];
+//   realPoints: any;
+//   paper: any;
+// }
 
 isClosedPolyLoop(lastPoint) {
   if (!this.startingPoint || this.circle.length < 3) return false;
@@ -505,3 +508,6 @@ drawFreeform(paper, r, containerId, corridorConfig, paperConfig, freeFormDrawInf
 
 }
 
+export class FreeFormDrawingData {
+  drawPoints: Point[] = [];
+}
