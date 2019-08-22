@@ -1,9 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { PaperConfig } from './paper.config'
-import {Corridor} from '../model/corridor';
+import { Corridor } from '../model/corridor';
 import * as $ from "jquery";
 declare const svgPanZoom: any;
 declare const Raphael: any; // 
+//declare const snapPoint: any;
 
 @Component({
   selector: 'app-paper',
@@ -15,21 +16,21 @@ export class PaperComponent implements OnInit {
 
   paper: any;
   corridor: any;
-  corridorConfig:Corridor
+  corridorConfig: Corridor
   paperConfig: { offset: any; width: any; height: any; viewboxOffset: any; viewboxRatio: any; };
+  self: any = this;
   @ViewChild('view2d', { static: true })
   private canvasRef: ElementRef;
   private get canvas(): HTMLCanvasElement {
     return this.canvasRef.nativeElement;
   }
-  constructor() {
-    console.log(this.canvasRef, '=============')
-    this.paperConfig = this.getPaperConfig(420, 300, 30, 'svg_paper');
-  }
-  
-  ngOnInit() {
-    console.log(this.canvas, '===========================dsfasdfasdfas');
+  constructor() {}
 
+  ngOnInit() {
+
+  }
+  ngAfterViewInit(): void {
+    this.paperConfig = this.getPaperConfig(420, 300, 30, this.canvas.id);
     this.corridorConfig = {
       x: 10,
       y: 10,
@@ -38,26 +39,32 @@ export class PaperComponent implements OnInit {
       g: 10 * this.paperConfig.viewboxRatio,
       gridSize: 10 // in feet
     };
-    this.paper = Raphael('container', PaperConfig.containerWidth, PaperConfig.containerHeight);
+    let w = this.snapPoint(
+      this.canvas.clientWidth,
+      this.corridorConfig.gridSize,
+      this.paperConfig.viewboxRatio
+    ),
+      h = this.snapPoint(
+        this.canvas.clientHeight,
+        this.corridorConfig.gridSize,
+        this.paperConfig.viewboxRatio
+      )
+    this.paper = Raphael(this.canvas.id, w, h);
     this.drawAxis(this.paper, PaperConfig.gridGap, PaperConfig.offset, PaperConfig.ratio, PaperConfig.containerWidth, PaperConfig.containerHeight, true);
-  }
-  ngAfterViewInit(): void {
-    //Called after ngAfterContentInit when the component's view has been initialized. Applies to components only.
-    //Add 'implements AfterViewInit' to the class.
-    this.drawShape(this.corridorConfig, 'svg_paper', this.paper, this.corridor, this.paperConfig);
+    this.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridor, this.paperConfig);
   }
 
-  getPaperConfig = function(width, height, viewboxOffset, canvasId) {
+  getPaperConfig = function (width, height, viewboxOffset, canvasId) {
     let data = {
       offset: viewboxOffset,
       width: width,
       height: height,
       viewboxOffset: viewboxOffset,
-      viewboxRatio: this.calFeetToPixel(width, height, viewboxOffset, canvasId),    
+      viewboxRatio: this.calFeetToPixel(width, height, viewboxOffset, canvasId),
     };
     return data;
   }
- 
+
   drawAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid) {
     let paperWidth = paper.width,
       paperHeight = paper.height,
@@ -99,6 +106,7 @@ export class PaperComponent implements OnInit {
   }
 
   drawShape(corridorConfig, containerId, paper, corridor, paperConfig) {
+
     var x = corridorConfig.x,
       y = corridorConfig.y,
       w = corridorConfig.w,
@@ -111,13 +119,12 @@ export class PaperComponent implements OnInit {
     var startPoint, endPoint;
     let mouseDownX;
     let mouseDownY;
-
     $("#" + containerId).unbind("mousedown");
     $("#" + containerId).unbind("mousemove");
     $("#" + containerId).unbind("mouseup");
-
     // mousedown event
-    $("#" + containerId).mousedown(function (e) {
+    $("#" + containerId).mousedown((e) => {
+      console.log('this', this);
       // Prevent text edit cursor while dragging in webkit browsers
       $("#" + containerId).unbind("mousedown");
       $("#" + containerId).unbind("mousedown");
@@ -127,12 +134,12 @@ export class PaperComponent implements OnInit {
       mouseDownY = this.snapInitPoint(e.pageY - offset.top, corridorConfig.gridSize, paperConfig.viewboxRatio);
       mouseDownY -= topToCenter;
       if (isCorridorDrawn == true) return false;
-      this.drawCorridor(paper, mouseDownX, mouseDownY, w, h, g);
+      shape = this.drawCorridor(paper, mouseDownX, mouseDownY, w, h, g);
       ft = paper.freeTransform(shape);
     });
 
     // mousemove event
-    $("#" + containerId).mousemove(function (e) {
+    $("#" + containerId).mousemove((e) => {
       if (shape) {
         shape.remove();
         ft.unplug();
@@ -155,38 +162,38 @@ export class PaperComponent implements OnInit {
           }
 
         },
-        // freeTransformHandler
+        this.freeTransformHandler
       );
       ft.attrs.rotate = angle;
       ft.apply();
 
 
-      $("#" + containerId).click(function (e) {
+      $("#" + containerId).click((e) => {
         e.originalEvent.preventDefault();
-        $("#" + containerId).unbind("mousemove");
+        $("#" + containerId).unbind("mousemove");      
         var BBox = shape.getBBox();
         if (BBox.width == 0 && BBox.height == 0) shape.remove();
-          this.bindZoomHandler()
+        this.bindZoomHandler()
       });
     });
   }
 
-  drawCorridor(paper, x, y, w, h, g) {    
+  drawCorridor(paper, x, y, w, h, g) {
     var element = paper.path(`M ${x},${y}  L ${x + w},${y} L ${x + w},${y + h} L ${x},${y + h} L ${x}, ${y} z` +
       `M ${x},${y + h + g}  L ${x + w},${y + h + g} L ${x + w},${2 * h + y + g} L ${x},${2 * h + y + g} L ${x},${y + h + g} z`)
       .attr({ 'fill': '#D3D3D3', "stroke": '#D3D3D3' })
-    this.selectElement(element.node, x, y);
+    this.selectElement(element, x, y);
     return element;
   }
 
   // draw corridor
-  drawCircle(paper, x, y, w) {  
+  drawCircle(paper, x, y, w) {
     var element = paper.circle(x, y, 5);
     this.selectElement(element, x, y);
     return element;
   }
 
-  selectElement(element, x , y){
+  selectElement(element, x, y) {
     $(element.node).attr('id', 'path' + x + y);
     element.click(function (e) {
       $(element.node).attr('id');
@@ -238,7 +245,7 @@ export class PaperComponent implements OnInit {
     return this.snapInitPoint(point, gridSize, ratio);
   }
 
-  snapInitPoint(point, gridSize, ratio) {
+  snapInitPoint(point, gridSize, ratio): any {
     console.log(point, gridSize, ratio, "point,gridSize, ratio")
     var gridSizeInPX = gridSize * ratio;
     let p = Math.floor(point / gridSizeInPX) * gridSizeInPX;
@@ -249,7 +256,7 @@ export class PaperComponent implements OnInit {
     return p;
   }
 
-  bindZoomHandler = function(){
+  bindZoomHandler = function () {
     let panZoomInstance = svgPanZoom('svg', {
       zoomEnabled: true,
       panEnabled: true,
@@ -258,51 +265,127 @@ export class PaperComponent implements OnInit {
       center: false,
       minZoom: 0,
       maxZoom: 2,
-      onZoom: function(newZoom){
+      onZoom: function (newZoom) {
         var ele = $('.svg-pan-zoom_viewport')[0];
         var viewportMatrix = ele.transform.baseVal.consolidate().matrix;
         var viewboxSizes = panZoomInstance.getSizes();
         // clearLabels(newZoom, viewportMatrix, viewboxSizes);
       },
-      beforePan : function(oldPan, newPan){
-       console.log("pan....")
+      beforePan: function (oldPan, newPan) {
+        console.log("pan....")
       }
     });
   }
   calFeetToPixel(width, height, viewboxOffset, canvasId) {
-    debugger
-    var clientWidth =429,
-    clientHeight = 427;
+    // debugger
+    // var clientWidth = document.getElementById(canvasId).clientWidth,
+    // clientHeight = document.getElementById(canvasId).clientHeight;
+    var clientWidth = 429,
+      clientHeight = 427;
     var viewboxWidth = clientWidth;
     var actualHeight = clientHeight,
-        feetToPixel: any = (viewboxWidth / width).toFixed(3),
-        rh = height * feetToPixel;
-  
+      feetToPixel: any = (viewboxWidth / width).toFixed(3),
+      rh = height * feetToPixel;
+
     feetToPixel = feetToPixel.slice(0, feetToPixel.length - 1);
     if (rh > actualHeight) {
       feetToPixel = (actualHeight / height).toFixed(3);
       feetToPixel = feetToPixel.slice(0, feetToPixel.length - 1);
       console.log(
         "pixel ratio is getting consider by height actual height is in pixel is " +
-          clientHeight +
-          "and Required height is " +
-          height +
-          "ration of fitto pixelis" +
-          feetToPixel
+        clientHeight +
+        "and Required height is " +
+        height +
+        "ration of fitto pixelis" +
+        feetToPixel
       );
     } else
       console.log(
         "pixel ratio is getting consider by width actual width is in pixel is " +
-          clientWidth +
-          "and Required width is " +
-          width +
-          "ration of fitto pixelis" +
-          feetToPixel
+        clientWidth +
+        "and Required width is " +
+        width +
+        "ration of fitto pixelis" +
+        feetToPixel
       );
-  
+
     return feetToPixel;
-    
-  };  
+  };
+
+  freeTransformHandler = function (ft, events) {
+    // shape.mouseover(function (eve) {
+    //   panZoomInstance.disablePan();
+    // })
+    // shape.mouseout(function (eve) {
+    //   panZoomInstance.enablePan();
+    // })
+    // var paper = gPaper,
+    //     corridorConfig = gCorridorConfig,
+    //     paperConfig = gPaperConfig, 
+    //     corridor = gCorridor;
+
+    // var h = corridorConfig.h,
+    //   g = corridorConfig.g,
+    //   handles = ft.handles;
+  
+    // if (handles && handles.y) {
+    //   startPoint = this.getPoint(handles.y.disc);
+    //   endPoint = this.getPoint(handles.x.disc);
+    //   var snapStartPoint = {
+    //     x: this.snapInitPoint(
+    //       ((startPoint.x - paperConfig.offset * paperConfig.viewboxRatio) / paperConfig.viewboxRatio).toFixed(2),
+    //       corridorConfig.gridSize, 1),
+    //     y: this.snapInitPoint(
+    //       ((paper.height - paperConfig.offset * paperConfig.viewboxRatio - startPoint.y) / paperConfig.viewboxRatio).toFixed(2),
+    //       corridorConfig.gridSize, 1),
+    //   };
+  
+    //   corridor.rotate = ft.attrs.rotate.toFixed(2);
+    //   corridor.ratio = paperConfig.viewboxRatio;
+    //   corridor.sp = {
+    //     x: snapStartPoint.x,
+    //     y: snapStartPoint.y,
+    //     z: 0
+    //   };
+    //   corridor.ep = {
+    //     x: this.snapInitPoint(((endPoint.x - paperConfig.offset * paperConfig.viewboxRatio) / paperConfig.viewboxRatio).toFixed(2), corridorConfig.gridSize, 1),
+    //     y: this.snapInitPoint(((paper.height - paperConfig.offset * paperConfig.viewboxRatio - (endPoint.y)) / paperConfig.viewboxRatio).toFixed(2), corridorConfig.gridSize, 1),
+    //     z: 0
+    //   };
+    //   corridor.paper = { width: paper.width, height: paper.height };
+    //   corridor.bbox = shape.getBBox();
+  
+    //   if (events[0] == "drag end" || events[0] == "rotate end" || events[0] == "scale end") {
+    //     var cx = this.snapInitPoint(startPoint.x, corridorConfig.gridSize, paperConfig.viewboxRatio),
+    //       cy = this.snapInitPoint(startPoint.y, corridorConfig.gridSize, paperConfig.viewboxRatio),
+    //       cx2 = this.snapInitPoint(endPoint.x, corridorConfig.gridSize, paperConfig.viewboxRatio),
+    //       cy2 = this.snapInitPoint(endPoint.y, corridorConfig.gridSize, paperConfig.viewboxRatio)
+    //     width = this.getDistaanceBetween(cx, cy, cx2, cy2);
+  
+    //     var angle1 = getAngle(cx, cy, cx2, cy2);
+    //     var transformShape = "t" + (cx - startPoint.x) + "," + (startPoint.y - cy);
+    //     console.log(transformShape, "transformShape")
+    //     shape.transform(transformShape);
+  
+    //     ft.attrs.rotate = angle1;
+    //     ft.apply();
+    //     corridor.rotate = angle1.toFixed(2);
+  
+    //     corridor.sp = {
+    //       x: this.snapInitPoint(cx, corridorConfig.gridSize, 1),
+    //       y: this.snapInitPoint(cy, corridorConfig.gridSize, 1),
+    //       z: 0
+    //     };
+    //     corridor.ep = {
+    //       x: this.snapInitPoint(((cx2 - paperConfig.offset * paperConfig.viewboxRatio) / paperConfig.viewboxRatio).toFixed(2), corridorConfig.gridSize, 1),
+    //       y: this.snapInitPoint(((paper.height - paperConfig.offset * paperConfig.viewboxRatio - (cy2)) / paperConfig.viewboxRatio).toFixed(2), corridorConfig.gridSize, 1),
+    //       z: 0
+    //     };
+    //     corridor.bbox = shape.getBBox();
+    //     this.bindZoomHandler()
+    //   }
+    // }
+  };
 
 }
 
