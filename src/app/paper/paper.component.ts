@@ -24,7 +24,7 @@ export class PaperComponent implements OnInit {
   private get canvas(): HTMLCanvasElement {
     return this.canvasRef.nativeElement;
   }
-  constructor() {}
+  constructor() { }
 
   ngOnInit() {
 
@@ -51,7 +51,9 @@ export class PaperComponent implements OnInit {
       )
     this.paper = Raphael(this.canvas.id, w, h);
     this.drawAxis(this.paper, PaperConfig.gridGap, PaperConfig.offset, PaperConfig.ratio, PaperConfig.containerWidth, PaperConfig.containerHeight, true);
-    this.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridor, this.paperConfig);
+    // this.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridor, this.paperConfig);
+    this.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawInfo);
+
   }
 
   getPaperConfig = function (width, height, viewboxOffset, canvasId) {
@@ -162,7 +164,7 @@ export class PaperComponent implements OnInit {
           }
 
         },
-        this.freeTransformHandler
+        // this.freeTransformHandler
       );
       ft.attrs.rotate = angle;
       ft.apply();
@@ -170,7 +172,7 @@ export class PaperComponent implements OnInit {
 
       $("#" + containerId).click((e) => {
         e.originalEvent.preventDefault();
-        $("#" + containerId).unbind("mousemove");      
+        $("#" + containerId).unbind("mousemove");
         var BBox = shape.getBBox();
         if (BBox.width == 0 && BBox.height == 0) shape.remove();
         this.bindZoomHandler()
@@ -312,80 +314,194 @@ export class PaperComponent implements OnInit {
     return feetToPixel;
   };
 
-  freeTransformHandler = function (ft, events) {
-    // shape.mouseover(function (eve) {
-    //   panZoomInstance.disablePan();
-    // })
-    // shape.mouseout(function (eve) {
-    //   panZoomInstance.enablePan();
-    // })
-    // var paper = gPaper,
-    //     corridorConfig = gCorridorConfig,
-    //     paperConfig = gPaperConfig, 
-    //     corridor = gCorridor;
 
-    // var h = corridorConfig.h,
-    //   g = corridorConfig.g,
-    //   handles = ft.handles;
-  
-    // if (handles && handles.y) {
-    //   startPoint = this.getPoint(handles.y.disc);
-    //   endPoint = this.getPoint(handles.x.disc);
-    //   var snapStartPoint = {
-    //     x: this.snapInitPoint(
-    //       ((startPoint.x - paperConfig.offset * paperConfig.viewboxRatio) / paperConfig.viewboxRatio).toFixed(2),
-    //       corridorConfig.gridSize, 1),
-    //     y: this.snapInitPoint(
-    //       ((paper.height - paperConfig.offset * paperConfig.viewboxRatio - startPoint.y) / paperConfig.viewboxRatio).toFixed(2),
-    //       corridorConfig.gridSize, 1),
-    //   };
-  
-    //   corridor.rotate = ft.attrs.rotate.toFixed(2);
-    //   corridor.ratio = paperConfig.viewboxRatio;
-    //   corridor.sp = {
-    //     x: snapStartPoint.x,
-    //     y: snapStartPoint.y,
-    //     z: 0
-    //   };
-    //   corridor.ep = {
-    //     x: this.snapInitPoint(((endPoint.x - paperConfig.offset * paperConfig.viewboxRatio) / paperConfig.viewboxRatio).toFixed(2), corridorConfig.gridSize, 1),
-    //     y: this.snapInitPoint(((paper.height - paperConfig.offset * paperConfig.viewboxRatio - (endPoint.y)) / paperConfig.viewboxRatio).toFixed(2), corridorConfig.gridSize, 1),
-    //     z: 0
-    //   };
-    //   corridor.paper = { width: paper.width, height: paper.height };
-    //   corridor.bbox = shape.getBBox();
-  
-    //   if (events[0] == "drag end" || events[0] == "rotate end" || events[0] == "scale end") {
-    //     var cx = this.snapInitPoint(startPoint.x, corridorConfig.gridSize, paperConfig.viewboxRatio),
-    //       cy = this.snapInitPoint(startPoint.y, corridorConfig.gridSize, paperConfig.viewboxRatio),
-    //       cx2 = this.snapInitPoint(endPoint.x, corridorConfig.gridSize, paperConfig.viewboxRatio),
-    //       cy2 = this.snapInitPoint(endPoint.y, corridorConfig.gridSize, paperConfig.viewboxRatio)
-    //     width = this.getDistaanceBetween(cx, cy, cx2, cy2);
-  
-    //     var angle1 = getAngle(cx, cy, cx2, cy2);
-    //     var transformShape = "t" + (cx - startPoint.x) + "," + (startPoint.y - cy);
-    //     console.log(transformShape, "transformShape")
-    //     shape.transform(transformShape);
-  
-    //     ft.attrs.rotate = angle1;
-    //     ft.apply();
-    //     corridor.rotate = angle1.toFixed(2);
-  
-    //     corridor.sp = {
-    //       x: this.snapInitPoint(cx, corridorConfig.gridSize, 1),
-    //       y: this.snapInitPoint(cy, corridorConfig.gridSize, 1),
-    //       z: 0
-    //     };
-    //     corridor.ep = {
-    //       x: this.snapInitPoint(((cx2 - paperConfig.offset * paperConfig.viewboxRatio) / paperConfig.viewboxRatio).toFixed(2), corridorConfig.gridSize, 1),
-    //       y: this.snapInitPoint(((paper.height - paperConfig.offset * paperConfig.viewboxRatio - (cy2)) / paperConfig.viewboxRatio).toFixed(2), corridorConfig.gridSize, 1),
-    //       z: 0
-    //     };
-    //     corridor.bbox = shape.getBBox();
-    //     this.bindZoomHandler()
-    //   }
-    // }
-  };
+// ================== Line Drawing ============
+
+freeformPoint = []
+manupulateFreeformPoints = [];
+freeFormPath;
+startingPoint;
+isDrawing = false;
+context = "LINE";
+freeFormConfig = {
+  ignoreDeviation: 10
+}
+circle = [];
+freeFormDrawInfo: {
+  drawPoints: [];
+  realPoints: any;
+  paper: any;
+}
+
+isClosedPolyLoop(lastPoint) {
+  if (!this.startingPoint || this.circle.length < 3) return false;
+  var dx = this.startingPoint.x - lastPoint.x, dy = this.startingPoint.y - lastPoint.y;
+  return (dx > -this.freeFormConfig.ignoreDeviation && dx < this.freeFormConfig.ignoreDeviation) &&
+    (dy > -this.freeFormConfig.ignoreDeviation && dy < this.freeFormConfig.ignoreDeviation)
+}
+
+snapPointToLine(lastPoint, currentPoint) {
+  if (!lastPoint && !currentPoint) return null;
+  if (this.circle.length) {
+    let c = this.circle[this.circle.length - 1];
+    if (c.cx >= -this.freeFormConfig.ignoreDeviation && c.cx <= this.freeFormConfig.ignoreDeviation)
+      currentPoint.x = c.cx;
+    if (c.cy >= -this.freeFormConfig.ignoreDeviation && c.cy <= this.freeFormConfig.ignoreDeviation)
+      currentPoint.y = c.cy
+  }
+
+  return currentPoint;
+}
+
+
+isIgnorable(tLine) {
+  let path = tLine.attrs.path;
+  let len = path.length;
+  if (len > 1)
+    return (path[len - 2][1] < 5 || path[len - 1][1] > -5) && (path[len - 1][2] < 5 || path[len - 2][2] > -5);
+  return false;
+}
+
+matchPoint(point, tLine) {
+  var path = tLine.attrs.path,
+    len = path.length,
+    dx = point.x - path[len - 1][1],
+    dy = point.y - path[len - 1][2];
+
+  if (dx > -5 && dx < 5)
+    point.x = path[len - 1][1];
+
+  if (dy > -5 && dy < 5)
+    point.y = path[len - 1][2];
+
+  return point;
+}
+
+tmpLine;
+buildPath(paper, point, isClosed, isMoving) {
+  if (!this.freeFormPath) {
+    this.freeFormPath = `M ${point.x},${point.y}`
+    this.startingPoint = { x: point.x, y: point.y };
+  }
+  else if (!isMoving) {
+    if (isClosed)
+    this.freeFormPath += `L ${this.startingPoint.x},${this.startingPoint.y} Z`
+    else
+    this.freeFormPath += `L ${point.x},${point.y} `
+
+    if (this.tmpLine)
+    this.tmpLine.remove();
+    this.tmpLine = paper.path(this.freeFormPath);
+  }
+  else {
+    if (this.tmpLine)
+    this.tmpLine.remove();
+    this.tmpLine = paper.path(this.freeFormPath + `L ${point.x},${point.y} `);
+  }
+
+}
+
+cuurentPoint;
+drawFreeform(paper, r, containerId, corridorConfig, paperConfig, freeFormDrawInfo){
+  this.context = "LINE"
+  let mouseDownX =0 ;
+  let mouseDownY = 0;
+  let mouseUpX = 0;
+  let mouseUpY: any;
+  let shape: any;
+  let isCorridorDrawn = false;
+  $('#' + containerId).unbind('mousedown');
+  $('#' + containerId).unbind('mousemove');
+  $('#' + containerId).unbind('mouseup');
+  $('#' + containerId).unbind('click');
+  var isDrawing = false
+  var lastPoint
+
+  $('#' + containerId).mousedown((e) => {
+    // debugger
+    if (this.context === "LINE") {
+      isDrawing = true;
+      let isClosedPath = false;
+      e.originalEvent.preventDefault();
+      var offset = $("#svg_paper").offset();
+      mouseDownX = e.pageX - offset.left;
+      mouseDownY = e.pageY - offset.top;
+      lastPoint = { x: mouseDownX, y: mouseDownY };
+    }
+  });
+
+  $('#' + containerId).mousemove((e) => {
+    if (this.context === "LINE") {
+      var offset = $('#' + containerId).offset(),
+        upX = e.pageX - offset.left,
+        upY = e.pageY - offset.top,
+        cuurentPoint = { x: upX, y: upY };
+      if (lastPoint)
+        cuurentPoint = this.snapPointToLine(lastPoint, cuurentPoint);
+
+      var isClosedPath = this.isClosedPolyLoop(cuurentPoint);
+      if (isDrawing) {
+        this.buildPath(paper, cuurentPoint, isClosedPath, true);
+
+        if (isClosedPath) {
+          this.buildPath(paper, cuurentPoint, isClosedPath, false);
+
+        }
+        lastPoint = cuurentPoint;
+      }
+    }
+  });
+
+  $('#' + containerId).mouseup((e) => {
+    debugger
+    if (this.context === "LINE") {
+      e.originalEvent.preventDefault();
+      var offset = $("#svg_paper").offset();
+      var yRemainingHeight = paper.height % (corridorConfig.gridSize * paperConfig.viewboxRatio);
+      mouseUpX = this.snapInitPoint(e.pageX - offset.left, corridorConfig.gridSize, paperConfig.viewboxRatio);
+      mouseUpY = this.snapInitPoint(e.pageY - offset.top, corridorConfig.gridSize, paperConfig.viewboxRatio);
+      var pOffset = paperConfig.viewboxOffset * paperConfig.viewboxRatio;
+      this.cuurentPoint = { x: mouseUpX, y: mouseUpY }
+      this.freeformPoint.push(this.cuurentPoint);
+      this.manupulateFreeformPoints.push({
+        x: this.snapInitPoint((mouseUpX - pOffset) / paperConfig.viewboxRatio, corridorConfig.gridSize, 1),
+        y: this.snapInitPoint((paper.height - mouseUpY.toFixed(2) - pOffset) / paperConfig.viewboxRatio, corridorConfig.gridSize, 1)
+      });
+      freeFormDrawInfo.drawPoints = this.manupulateFreeformPoints;
+      freeFormDrawInfo.realPoints = { snapY: mouseUpY, x: e.pageX - offset.left, y: e.pageY - offset.top, yRemainingHeight: yRemainingHeight, ratio: paperConfig.viewboxRatio };
+      freeFormDrawInfo.paper = { width: paper.width, height: paper.height }
+
+      var isClosed = this.isClosedPolyLoop(this.cuurentPoint);
+      if (!this.freeFormPath || !isClosed) {
+        shape = this.drawCircle(paper, this.cuurentPoint.x, this.cuurentPoint.y, r);
+        this.circle.push(shape);
+      }
+
+      if (isDrawing) {
+        this.buildPath(paper, this.cuurentPoint, isClosed, false);
+      }
+
+      if (isClosed) {
+        this.context = "NONE"
+        isDrawing = false;
+        shape.remove();
+        for (var i = 0; i < this.circle.length; i++) {
+          this.circle[i].remove();
+        }
+        this.tmpLine.attr({ fill: '#d9f7a5' })
+        var tempPath
+        for (var i = 0; i < this.freeformPoint.length; i++) {
+          if (i == 0)
+            tempPath = `M ${this.freeformPoint[i].x},${this.freeformPoint[i].y},`
+          else
+            tempPath += ` L ${this.freeformPoint[i].x},${this.freeformPoint[i].y} `
+        }
+        this.tmpLine.attr({ path: tempPath + `Z` })
+      }
+    }
+  });
+}
+
 
 }
 
