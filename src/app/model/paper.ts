@@ -1,4 +1,4 @@
-import { PaperConfig } from './paper.config';
+import { PaperConfig } from './config/paper.config';
 
 export class Paper {
 

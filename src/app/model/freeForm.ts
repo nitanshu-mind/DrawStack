@@ -1,8 +1,6 @@
-import { Drawing } from './drawing';
 import * as $ from "jquery";
 
-
-export class FreeForm implements Drawing{
+export class FreeForm{
     freeformPoint = []
     manupulateFreeformPoints = [];
     freeFormPath;

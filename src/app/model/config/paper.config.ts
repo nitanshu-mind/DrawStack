@@ -6,8 +6,17 @@ export class PaperConfig {
     static offset: number = 3;
     static xLabels = [];
     static yLabels = [];
-    paperConfig = this.getPaperConfig(420, 300, 30, this.canvas.id);
-
+    // paperConfig = this.getPaperConfig(420, 300, 30, 'svg_canvas')
+    let w = this.snapPoint(
+        this.canvas.clientWidth,
+        this.corridorConfig.gridSize,
+        this.paperConfig.viewboxRatio
+      ),
+        h = this.snapPoint(
+          this.canvas.clientHeight,
+          this.corridorConfig.gridSize,
+          this.paperConfig.viewboxRatio
+        )
     getPaperConfig = function (width, height, viewboxOffset, canvasId) {
         let data = {
             offset: viewboxOffset,

@@ -1,7 +1,6 @@
-import { Drawing } from './drawing';
 import * as $ from "jquery";
 
-export class Corridor implements Drawing{
+export class Corridor{
     x: number;
     y: number;
     w: number;

@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Corridor } from '../model/corridor';
-import {CorridorConfig} from '../model/corridorConfig';
+import {CorridorConfig} from '../model/config/corridor.config';
 import {Paper} from '../model/paper'
 import * as $ from "jquery";
 import {Point} from '../model/point'
-import { PaperConfig } from '../model/paper.config';
+import { PaperConfig } from '../model/config/paper.config';
+import { FreeForm } from '../model/freeForm';
 declare const svgPanZoom: any;
 declare const Raphael: any; // 
 //declare const snapPoint: any;
@@ -20,6 +21,7 @@ export class PaperComponent implements OnInit {
   paperConfig: PaperConfig = new PaperConfig();  
   corridor: Corridor = new Corridor();
   corridorConfig: CorridorConfig = new CorridorConfig();
+  freeForm: FreeForm = new FreeForm();
   @ViewChild('view2d', { static: true })
   private canvasRef: ElementRef;
   private get canvas(): HTMLCanvasElement {
@@ -30,42 +32,42 @@ export class PaperComponent implements OnInit {
   ngOnInit() {}
 
   ngAfterViewInit(): void {
-    this.paperConfig = this.getPaperConfig(420, 300, 30, this.canvas.id);
-    this.corridorConfig = {
-      x: 10,
-      y: 10,
-      w: 1,
-      h: 30 * this.paperConfig.viewboxRatio,
-      g: 10 * this.paperConfig.viewboxRatio,
-      gridSize: 10 // in feet
-    };
-    let w = this.snapPoint(
-      this.canvas.clientWidth,
-      this.corridorConfig.gridSize,
-      this.paperConfig.viewboxRatio
-    ),
-      h = this.snapPoint(
-        this.canvas.clientHeight,
-        this.corridorConfig.gridSize,
-        this.paperConfig.viewboxRatio
-      )
+    // this.paperConfig = this.getPaperConfig(420, 300, 30, this.canvas.id);
+    // this.corridorConfig = {
+    //   x: 10,
+    //   y: 10,
+    //   w: 1,
+    //   h: 30 * this.paperConfig.viewboxRatio,
+    //   g: 10 * this.paperConfig.viewboxRatio,
+    //   gridSize: 10 // in feet
+    // };
+    // let w = this.snapPoint(
+    //   this.canvas.clientWidth,
+    //   this.corridorConfig.gridSize,
+    //   this.paperConfig.viewboxRatio
+    // ),
+    //   h = this.snapPoint(
+    //     this.canvas.clientHeight,
+    //     this.corridorConfig.gridSize,
+    //     this.paperConfig.viewboxRatio
+    //   )
     this.paper = Raphael(this.canvas.id, w, h);
     this.drawAxis(this.paper, PaperConfig.gridGap, PaperConfig.offset, PaperConfig.ratio, PaperConfig.containerWidth, PaperConfig.containerHeight, true);
     // this.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridor, this.paperConfig);
-    this.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
+    // this.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
 
   }
 
-  getPaperConfig = function (width, height, viewboxOffset, canvasId) {
-    let data = {
-      offset: viewboxOffset,
-      width: width,
-      height: height,
-      viewboxOffset: viewboxOffset,
-      viewboxRatio: this.calFeetToPixel(width, height, viewboxOffset, canvasId),
-    };
-    return data;
-  }
+  // getPaperConfig = function (width, height, viewboxOffset, canvasId) {
+  //   let data = {
+  //     offset: viewboxOffset,
+  //     width: width,
+  //     height: height,
+  //     viewboxOffset: viewboxOffset,
+  //     viewboxRatio: this.calFeetToPixel(width, height, viewboxOffset, canvasId),
+  //   };
+  //   return data;
+  // }
   // =================== Draw Axis =====================
   drawAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid) {
     let paperWidth = paper.width,
