@@ -77,7 +77,7 @@ export class Corridor {
         $("#" + containerId).unbind("mousemove");
         var BBox = shape.getBBox();
         if (BBox.width == 0 && BBox.height == 0) shape.remove();
-        // this.bindZoomHandler()
+        this.bindZoomHandler()
       });
     });
   }

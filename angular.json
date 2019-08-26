@@ -32,7 +32,8 @@
             ],
             "scripts": [
               "src/assets/js/raphael.min.js",
-              "src/assets/js/raphael_free_transform.js"
+              "src/assets/js/raphael_free_transform.js",
+              "src/assets/js/svg-pan-zoom.js"
             ]
           },
           "configurations": {
