@@ -1,22 +1,12 @@
-export class PaperConfig {
-    static gridGap: number = 10;
-    static containerHeight: number = 500;
-    static containerWidth: number = 500;
-    static ratio: number = 1;
-    static offset: number = 3;
-    static xLabels = [];
-    static yLabels = [];
-    // paperConfig = this.getPaperConfig(420, 300, 30, 'svg_canvas')
-    let w = this.snapPoint(
-        this.canvas.clientWidth,
-        this.corridorConfig.gridSize,
-        this.paperConfig.viewboxRatio
-      ),
-        h = this.snapPoint(
-          this.canvas.clientHeight,
-          this.corridorConfig.gridSize,
-          this.paperConfig.viewboxRatio
-        )
+export class PaperConfig{
+    gridGap: number = 10;
+    containerHeight: number = 500;
+    containerWidth: number = 500;
+    ratio: number = 1;
+    offset: number = 3;
+    xLabels = [];
+    yLabels = [];
+
     getPaperConfig = function (width, height, viewboxOffset, canvasId) {
         let data = {
             offset: viewboxOffset,
@@ -27,8 +17,8 @@ export class PaperConfig {
         };
         return data;
     }
-    calFeetToPixel(width, height, viewboxOffset, canvasId) {
-        // debugger
+    
+    calFeetToPixel(width, height, viewboxOffset, canvasId) {        
         // var clientWidth = document.getElementById(canvasId).clientWidth,
         // clientHeight = document.getElementById(canvasId).clientHeight;
         var clientWidth = 429,
@@ -62,4 +52,5 @@ export class PaperConfig {
 
         return feetToPixel;
     };
+    additionalPaperConfig = this.getPaperConfig(420, 300, 30, 'svg_canvas')
 }
