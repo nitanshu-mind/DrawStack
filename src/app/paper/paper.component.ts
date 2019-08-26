@@ -5,6 +5,7 @@ import { Paper } from '../model/paper'
 import { PaperConfig } from '../model/config/paper.config';
 import { FreeForm } from '../model/freeForm';
 import { FreeFormConfig } from '../model/config/freeForm.config';
+import { FreeFormDrawingData } from '../model/freeFormDrawingData';
 declare const Raphael: any;
 
 @Component({
@@ -21,6 +22,7 @@ export class PaperComponent implements OnInit {
   corridorConfig: CorridorConfig = new CorridorConfig();
   freeFormObject: FreeForm = new FreeForm();
   freeFormConfig: FreeFormConfig = new FreeFormConfig();
+  freeFormDrawingInfo: FreeFormDrawingData = new FreeFormDrawingData();
   @ViewChild('view2d', { static: true })
   private canvasRef: ElementRef;
   private get canvas(): HTMLCanvasElement {
@@ -34,6 +36,6 @@ export class PaperComponent implements OnInit {
     this.paper = Raphael(this.canvas.id, this.paperConfig.containerWidth, this.paperConfig.containerHeight);
     this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true);    
     this.corridorObject.drawShape(this.corridorConfig.corridorConfig, this.canvas.id, this.paper, this.corridorObject, this.paperConfig);
-    // this.freeForm.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
+    // this.freeFormObject.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
   }
 }

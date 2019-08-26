@@ -1,7 +1,7 @@
 export class PaperConfig{
     gridGap: number = 10;
-    containerHeight: number = 500;
-    containerWidth: number = 500;
+    containerHeight: number = 800;
+    containerWidth: number = 800;
     ratio: number = 1;
     offset: number = 3;
     xLabels = [];
