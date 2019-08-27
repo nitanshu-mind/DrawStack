@@ -12,8 +12,7 @@ export class Editor2dComponent implements OnInit {
   @Input() public shapeType: string = "";
   constructor() { }
   
-  ngOnInit() {
-    console.log(this.shapeType, "=====================")
+  ngOnInit() {    
   }
 
 }
