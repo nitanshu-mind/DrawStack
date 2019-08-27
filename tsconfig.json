@@ -17,7 +17,15 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "editor2d": [
+        "dist/editor2d"
+      ],
+      "editor2d/*": [
+        "dist/editor2d/*"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

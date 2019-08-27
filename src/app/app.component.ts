@@ -7,4 +7,13 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'DrawStack';
+  shapeType: any;
+  
+  enableCorridorDrawing(){    
+    this.shapeType = 'Corridor';
+  }
+  enableLineDrawing(){
+    this.shapeType = 'Line';
+  }
+  
 }

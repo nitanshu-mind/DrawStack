@@ -1,5 +1,4 @@
-import * as $ from "jquery";
-
+import $ from "jquery";
 export class FreeForm{
    
 freeformPoint = []
@@ -137,7 +136,8 @@ drawFreeform(paper, r, containerId, corridorConfig, paperConfig, freeFormDrawInf
     }
   });
 
-  $('#' + containerId).mouseup((e) => {  
+  $('#' + containerId).mouseup((e) => {
+    debugger
     if (this.context === "LINE") {
       e.originalEvent.preventDefault();
       var offset = $("#svg_paper").offset();

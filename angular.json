@@ -123,6 +123,41 @@
           }
         }
       }
+    },
+    "editor2d": {
+      "projectType": "library",
+      "root": "projects/editor2d",
+      "sourceRoot": "projects/editor2d/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/editor2d/tsconfig.lib.json",
+            "project": "projects/editor2d/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/editor2d/src/test.ts",
+            "tsConfig": "projects/editor2d/tsconfig.spec.json",
+            "karmaConfig": "projects/editor2d/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/editor2d/tsconfig.lib.json",
+              "projects/editor2d/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }},
   "defaultProject": "DrawStack"
 }
