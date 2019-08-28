@@ -1,5 +1,4 @@
 import $ from "jquery";
-import { CorridorConfig } from './config/corridor.config';
 declare const svgPanZoom: any;
 
 export class Corridor {
@@ -34,10 +33,11 @@ export class Corridor {
       $("#" + containerId).unbind("mousedown");
       e.originalEvent.preventDefault();
       var offset = $("#svg_paper").offset();
-      mouseDownX = this.snapInitPoint(e.pageX - offset.left, corridorConfig.gridSize, paperConfig.additionalPaperConfig.viewboxRatio);
-      mouseDownY = this.snapInitPoint(e.pageY - offset.top, corridorConfig.gridSize, paperConfig.additionalPaperConfig.viewboxRatio);
+      mouseDownX = this.snapInitPoint(e.pageX - offset.left, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
+      mouseDownY = this.snapInitPoint(e.pageY - offset.top, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
       mouseDownY -= topToCenter;
       if (isCorridorDrawn == true) return false;
+      debugger
       shape = this.drawCorridor(paper, mouseDownX, mouseDownY, w, h, g);
       ft = paper.freeTransform(shape);
     });
@@ -55,14 +55,14 @@ export class Corridor {
         width = this.getDistaanceBetween(mouseDownX, mouseDownY + topToCenter, upX, upY),
         height = upY - mouseDownY,
         angle = this.getAngle(mouseDownX, mouseDownY + topToCenter, upX, upY);
-      width = this.snapInitPoint(width, corridorConfig.gridSize, paperConfig.additionalPaperConfig.viewboxRatio);
+      width = this.snapInitPoint(width, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
       shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
       ft = paper.freeTransform(
         shape,
         {
-          snap: { drag: corridorConfig.gridSize * paperConfig.additionalPaperConfig.viewboxRatio },
+          snap: { drag: corridorConfig.gridSize * paperConfig.data.viewboxRatio },
           snapDist: {
-            drag: corridorConfig.gridSize * paperConfig.additionalPaperConfig.viewboxRatio
+            drag: corridorConfig.gridSize * paperConfig.data.viewboxRatio
           }
 
         },

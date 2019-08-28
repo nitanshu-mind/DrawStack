@@ -11,11 +11,6 @@ freeFormConfig = {
   ignoreDeviation: 10
 }
 circle = [];
-// freeFormDrawInfo: {
-//   drawPoints: [];
-//   realPoints: any;
-//   paper: any;
-// }
 
 isClosedPolyLoop(lastPoint) {
   if (!this.startingPoint || this.circle.length < 3) return false;
@@ -141,18 +136,18 @@ drawFreeform(paper, r, containerId, corridorConfig, paperConfig, freeFormDrawInf
     if (this.context === "LINE") {
       e.originalEvent.preventDefault();
       var offset = $("#svg_paper").offset();
-      var yRemainingHeight = paper.height % (corridorConfig.gridSize * paperConfig.viewboxRatio);
-      mouseUpX = this.snapInitPoint(e.pageX - offset.left, corridorConfig.gridSize, paperConfig.additionalPaperConfig.viewboxRatio);
-      mouseUpY = this.snapInitPoint(e.pageY - offset.top, corridorConfig.gridSize, paperConfig.additionalPaperConfig.viewboxRatio);
-      var pOffset = paperConfig.viewboxOffset * paperConfig.viewboxRatio;
+      var yRemainingHeight = paper.height % (corridorConfig.gridSize * paperConfig.data.viewboxRatio);
+      mouseUpX = this.snapInitPoint(e.pageX - offset.left, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
+      mouseUpY = this.snapInitPoint(e.pageY - offset.top, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
+      var pOffset = paperConfig.data.viewboxOffset * paperConfig.data.viewboxRatio;
       this.cuurentPoint = { x: mouseUpX, y: mouseUpY }
       this.freeformPoint.push(this.cuurentPoint);
       this.manupulateFreeformPoints.push({
-        x: this.snapInitPoint((mouseUpX - pOffset) / paperConfig.viewboxRatio, corridorConfig.gridSize, 1),
-        y: this.snapInitPoint((paper.height - mouseUpY.toFixed(2) - pOffset) / paperConfig.viewboxRatio, corridorConfig.gridSize, 1)
+        x: this.snapInitPoint((mouseUpX - pOffset) / paperConfig.data.viewboxRatio, corridorConfig.gridSize, 1),
+        y: this.snapInitPoint((paper.height - mouseUpY.toFixed(2) - pOffset) / paperConfig.data.viewboxRatio, corridorConfig.gridSize, 1)
       });
       freeFormDrawInfo.drawPoints = this.manupulateFreeformPoints;
-      freeFormDrawInfo.realPoints = { snapY: mouseUpY, x: e.pageX - offset.left, y: e.pageY - offset.top, yRemainingHeight: yRemainingHeight, ratio: paperConfig.viewboxRatio };
+      freeFormDrawInfo.realPoints = { snapY: mouseUpY, x: e.pageX - offset.left, y: e.pageY - offset.top, yRemainingHeight: yRemainingHeight, ratio: paperConfig.data.viewboxRatio };
       freeFormDrawInfo.paper = { width: paper.width, height: paper.height }
 
       var isClosed = this.isClosedPolyLoop(this.cuurentPoint);
