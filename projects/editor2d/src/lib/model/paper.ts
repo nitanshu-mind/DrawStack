@@ -1,7 +1,7 @@
-import { PaperConfig } from '../editor2d.config';
+import { Editor2DConfig } from '../editor2d.config';
 
 export class Paper {
-  paperConfig: any = (new PaperConfig()).paperConfig;
+  paperConfig: any = (new Editor2DConfig()).paperConfig;
 
   public drawAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid) {
     let paperWidth = paper.width,

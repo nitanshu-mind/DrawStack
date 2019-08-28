@@ -1,6 +1,7 @@
 import { FeetToPixel } from './model/feetToPixel';
 
-export class PaperConfig extends FeetToPixel { 
+export class Editor2DConfig extends FeetToPixel {  
+    
     paperConfig = {
         gridGap: 10,
         containerHeight: 800,

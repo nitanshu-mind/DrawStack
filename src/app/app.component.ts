@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { PaperConfig } from 'projects/editor2d/src/lib/model/userConfig';
 
 @Component({
   selector: 'app-root',
@@ -6,14 +7,19 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+
   title = 'DrawStack';
   shapeType: any;
+
+  userConfig: PaperConfig = {
+    width: 100
+  };
   
-  enableCorridorDrawing(){    
+  enableCorridorDrawing() {
     this.shapeType = 'Corridor';
   }
-  enableLineDrawing(){
+  enableLineDrawing() {
     this.shapeType = 'Line';
   }
-  
+
 }
