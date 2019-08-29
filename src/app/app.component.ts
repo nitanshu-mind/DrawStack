@@ -8,6 +8,9 @@ import { PaperConfig } from 'projects/editor2d/src/lib/model/userConfig';
 })
 export class AppComponent {
 
+
+  updatedData: any = {};
+
   title = 'DrawStack';
   shapeType: any;
 
@@ -15,12 +18,16 @@ export class AppComponent {
     width: 600,
     height: 600
   };
-  
+
   enableCorridorDrawing() {
     this.shapeType = 'Corridor';
   }
   enableLineDrawing() {
     this.shapeType = 'Line';
+  }
+
+  dataEmit($event) {
+    this.updatedData = $event;
   }
 
 }

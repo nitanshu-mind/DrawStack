@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, OnChanges, DoCheck, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Paper } from './model/paper'
 import { Editor2DConfig } from './editor2d.config';
 import { FreeFormDrawingData } from './model/freeFormDrawingData';
@@ -10,7 +10,7 @@ declare const Raphael: any;
 
 @Component({
   selector: 'lib-editor2d',
-  template: `  
+  template: `
     <div id="container"></div>
     <div id="view2d-canvas" style="padding-right: 5px">
       <div #view2d id="svg_paper"></div>
@@ -18,10 +18,12 @@ declare const Raphael: any;
   `,
   styles: []
 })
-export class Editor2dComponent implements OnInit, OnChanges {
+export class Editor2dComponent implements OnInit, OnChanges, OnDestroy, DoCheck {
 
   @Input() public shapeType: string = "";
   @Input() public userConfig: PaperConfig = null;
+
+  @Output() public output: EventEmitter<any> = new EventEmitter();
 
   paper: any;
   paperObject: Paper = new Paper();
@@ -36,6 +38,9 @@ export class Editor2dComponent implements OnInit, OnChanges {
   @ViewChild('view2d', { static: true })
 
   private canvasRef: ElementRef;
+  messageFromSibling: string;
+  coredis: any;
+  freeformCordinates: any;
   private get canvas(): HTMLCanvasElement {
     return this.canvasRef.nativeElement;
   }
@@ -52,20 +57,32 @@ export class Editor2dComponent implements OnInit, OnChanges {
 
   }
   ngOnChanges(changes) {
-    console.log('Changed', changes);
-
     if (this.shapeType == 'Corridor') {
-      this.corridorObject.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridorObject, this.paperConfig);
+      this.coredis = this.corridorObject.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridorObject, this.paperConfig);
+      console.log('draw corridor ', this.coredis)
     }
     if (this.shapeType == 'Line') {
-      this.freeFormObject.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
+      this.freeformCordinates = this.freeFormObject.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
+      console.log('===============', this.freeformCordinates)
     }
+  }
+
+  ngDoCheck() {
+    console.log(this.coredis, this.freeformCordinates);
+    this.output.emit(this.coredis);
+
+    this.output.emit({freeForm: this.freeformCordinates, corridor: this.coredis});
   }
 
   ngAfterViewInit(): void {
     this.paper = Raphael(this.canvas.id, this.paperConfig.containerWidth, this.paperConfig.containerHeight);
     this.corridorObject = new Corridor(this.paper);
     this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true);
+  }
+
+
+  ngOnDestroy() {
+
   }
 
 }

@@ -1,6 +1,6 @@
 import $ from "jquery";
 export class FreeForm{
-   
+
 freeformPoint = []
 manupulateFreeformPoints = [];
 freeFormPath;
@@ -20,7 +20,7 @@ isClosedPolyLoop(lastPoint) {
 }
 
 snapPointToLine(lastPoint, currentPoint) {
-  if (!lastPoint && !currentPoint) return null;  
+  if (!lastPoint && !currentPoint) return null;
   if (this.circle.length) {
     let c = this.circle[this.circle.length - 1];
     if (c.cx >= -this.freeFormConfig.ignoreDeviation && c.cx <= this.freeFormConfig.ignoreDeviation)
@@ -94,9 +94,9 @@ drawFreeform(paper, r, containerId, corridorConfig, paperConfig, freeFormDrawInf
   $('#' + containerId).unbind('mouseup');
   $('#' + containerId).unbind('click');
   var isDrawing = false
-  var lastPoint
+  var lastPoint;
 
-  $('#' + containerId).mousedown((e) => {    
+  $('#' + containerId).mousedown((e) => {
     if (this.context === "LINE") {
       isDrawing = true;
       let isClosedPath = false;
@@ -173,10 +173,15 @@ drawFreeform(paper, r, containerId, corridorConfig, paperConfig, freeFormDrawInf
           else
             tempPath += ` L ${this.freeformPoint[i].x},${this.freeformPoint[i].y} `
         }
-        this.tmpLine.attr({ path: tempPath + `Z` })
+        this.tmpLine.attr({ path: tempPath + `Z` });
+        // Returns co-ordinates
+        let setAxisPoints=this.manupulateFreeformPoints;
       }
     }
+    console.info("Freeform",this.manupulateFreeformPoints);
   });
+
+  return this.manupulateFreeformPoints;
 }
 snapInitPoint(point, gridSize, ratio): any {
   console.log(point, gridSize, ratio, "point,gridSize, ratio")
