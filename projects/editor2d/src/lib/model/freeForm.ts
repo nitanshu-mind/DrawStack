@@ -20,7 +20,7 @@ isClosedPolyLoop(lastPoint) {
 }
 
 snapPointToLine(lastPoint, currentPoint) {
-  if (!lastPoint && !currentPoint) return null;
+  if (!lastPoint && !currentPoint) return null;  
   if (this.circle.length) {
     let c = this.circle[this.circle.length - 1];
     if (c.cx >= -this.freeFormConfig.ignoreDeviation && c.cx <= this.freeFormConfig.ignoreDeviation)
@@ -96,8 +96,7 @@ drawFreeform(paper, r, containerId, corridorConfig, paperConfig, freeFormDrawInf
   var isDrawing = false
   var lastPoint
 
-  $('#' + containerId).mousedown((e) => {
-    // debugger
+  $('#' + containerId).mousedown((e) => {    
     if (this.context === "LINE") {
       isDrawing = true;
       let isClosedPath = false;
@@ -132,7 +131,6 @@ drawFreeform(paper, r, containerId, corridorConfig, paperConfig, freeFormDrawInf
   });
 
   $('#' + containerId).mouseup((e) => {
-    debugger
     if (this.context === "LINE") {
       e.originalEvent.preventDefault();
       var offset = $("#svg_paper").offset();
