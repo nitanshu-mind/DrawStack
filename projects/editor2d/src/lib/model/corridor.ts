@@ -1,14 +1,25 @@
 import $ from "jquery";
+import { Editor2DConfig } from '../editor2d.config';
+import { CorridorDrawPoints } from './corridorDrawPoints';
+
 declare const svgPanZoom: any;
 
 export class Corridor {
+  paper: any;
+  shape: any;
+  constructor(paper){
+    this.paper = paper;
+  }
   x: number;
   y: number;
   w: number;
   h: number;
   g: number;
   gridSize: number;
-
+  paperConfigObject: Editor2DConfig = new Editor2DConfig();
+  paperConfig: any = this.paperConfigObject.paperConfig;
+  corridorConfig: any = this.paperConfigObject.corridorConfig;
+  corridor: CorridorDrawPoints = new CorridorDrawPoints();
   drawShape(corridorConfig, containerId, paper, corridor, paperConfig) {
     var x = corridorConfig.x,
       y = corridorConfig.y,
@@ -17,8 +28,7 @@ export class Corridor {
       g = corridorConfig.g,
       isCorridorDrawn = false;
     var topToCenter = corridorConfig.h + corridorConfig.g / 2;
-    var ft;
-    let shape;
+    var ft;    
     var startPoint, endPoint;
     let mouseDownX;
     let mouseDownY;
@@ -36,16 +46,15 @@ export class Corridor {
       mouseDownX = this.snapInitPoint(e.pageX - offset.left, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
       mouseDownY = this.snapInitPoint(e.pageY - offset.top, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
       mouseDownY -= topToCenter;
-      if (isCorridorDrawn == true) return false;
-      debugger
-      shape = this.drawCorridor(paper, mouseDownX, mouseDownY, w, h, g);
-      ft = paper.freeTransform(shape);
+      if (isCorridorDrawn == true) return false;      
+      this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, w, h, g);
+      ft = paper.freeTransform(this.shape);
     });
 
     // mousemove event
     $("#" + containerId).mousemove((e) => {
-      if (shape) {
-        shape.remove();
+      if (this.shape) {
+        this.shape.remove();
         ft.unplug();
       } else return false;
 
@@ -56,17 +65,17 @@ export class Corridor {
         height = upY - mouseDownY,
         angle = this.getAngle(mouseDownX, mouseDownY + topToCenter, upX, upY);
       width = this.snapInitPoint(width, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
-      shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
+      this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
       ft = paper.freeTransform(
-        shape,
+        this.shape,        
         {
-          snap: { drag: corridorConfig.gridSize * paperConfig.data.viewboxRatio },
+          snap:  { drag: corridorConfig.gridSize * paperConfig.viewboxRatio },
           snapDist: {
-            drag: corridorConfig.gridSize * paperConfig.data.viewboxRatio
+            drag: corridorConfig.gridSize * paperConfig.viewboxRatio
           }
-
+         
         },
-        // this.freeTransformHandler
+        this.freeTransformHandler.bind(this)
       );
       ft.attrs.rotate = angle;
       ft.apply();
@@ -75,12 +84,78 @@ export class Corridor {
       $("#" + containerId).click((e) => {
         e.originalEvent.preventDefault();
         $("#" + containerId).unbind("mousemove");
-        var BBox = shape.getBBox();
-        if (BBox.width == 0 && BBox.height == 0) shape.remove();
+        var BBox = this.shape.getBBox();
+        if (BBox.width == 0 && BBox.height == 0) this.shape.remove();
         // this.bindZoomHandler()
       });
     });
   }
+
+  freeTransformHandler(ft, events) {  
+    let handles = ft.handles;
+    let startPoint;
+    let endPoint;
+    if(handles && handles.y){
+      startPoint = { x:handles.y.disc.attrs.cx, y:handles.y.disc.attrs.cy};
+      endPoint = { x:handles.x.disc.attrs.cx, y:handles.x.disc.attrs.cy};
+      console.log(this.paperConfig)      
+      var snapStartPoint = {
+        x:  this.snapInitPoint(
+          ((startPoint.x - this.paperConfig.data.offset*this.paperConfig.data.viewboxRatio)/this.paperConfig.data.viewboxRatio).toFixed(2),
+          this.corridorConfig.gridSize,1),
+        y: this.snapInitPoint(
+          ((this.paper.height- this.paperConfig.data.offset*this.paperConfig.data.viewboxRatio - startPoint.y)/this.paperConfig.data.viewboxRatio).toFixed(2),
+          this.corridorConfig.gridSize,1),
+      };
+    
+      this.corridor.rotate = ft.attrs.rotate.toFixed(2);
+      this.corridor.ratio =this.paperConfig.data.viewboxRatio;
+      this.corridor.sp = {
+        x: snapStartPoint.x,
+        y: snapStartPoint.y,
+        z: 0
+      };
+      this.corridor.ep = {
+        x: ((endPoint.x - this.paperConfig.data.offset*this.paperConfig.data.viewboxRatio)/this.paperConfig.data.viewboxRatio).toFixed(2),
+        y: ((this.paper.height-  this.paperConfig.data.offset*this.paperConfig.data.viewboxRatio- (endPoint.y ))/this.paperConfig.data.viewboxRatio).toFixed(2),
+        z: 0
+      };
+      this.corridor.paper = { width: this.paper.width, height: this.paper.height };            
+      this.corridor.bbox = this.shape.getBBox();
+      
+      // if(events[0] == "drag start" || events[0] == "rotate start" || events[0] == "scale start"){
+      //   if(panZoomInstance){
+      //     panZoomInstance.disablePan();
+      //   }
+      // };
+  
+      if(events[0] == "drag end" || events[0] == "rotate end" || events[0] == "scale end"){
+        var cx = this.snapInitPoint(startPoint.x, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio),
+        cy = this.snapInitPoint(startPoint.y, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
+        let snapValue = this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio,
+        distX = startPoint.x - Math.round(startPoint.x / snapValue)*snapValue,
+        distY = startPoint.y -Math.round(startPoint.y / snapValue)*snapValue;
+  
+        ft.attrs.translate.x -= distX;
+        ft.attrs.translate.y -= distY;
+        ft.apply();
+  
+        this.corridor.sp = {
+          x:  this.snapInitPoint(cx, this.corridorConfig.gridSize, 1),
+          y:  this.snapInitPoint(cy, this.corridorConfig.gridSize, 1),
+          z: 0
+        };
+        this.corridor.ep = {
+          x: endPoint.x.toFixed(2),
+          y: (this.paper.height- endPoint.y).toFixed(2),
+          z: 0
+        };
+        // this.bindZoomHandler();
+        // panZoomInstance.enablePan();
+      }
+    }
+  };  
+
 
   drawCorridor(paper, x, y, w, h, g) {
     var element = paper.path(`M ${x},${y}  L ${x + w},${y} L ${x + w},${y + h} L ${x},${y + h} L ${x}, ${y} z` +
@@ -180,4 +255,8 @@ export class Corridor {
       }
     });
   }
+
+  getPoint(obj){
+    return { x:obj.attrs.cx, y:obj.attrs.cy}
+  } 
 }

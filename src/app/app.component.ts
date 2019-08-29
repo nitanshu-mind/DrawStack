@@ -12,7 +12,8 @@ export class AppComponent {
   shapeType: any;
 
   userConfig: PaperConfig = {
-    width: 100
+    width: 600,
+    height: 600
   };
   
   enableCorridorDrawing() {

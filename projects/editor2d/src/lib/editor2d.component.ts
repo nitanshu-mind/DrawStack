@@ -29,7 +29,7 @@ export class Editor2dComponent implements OnInit, OnChanges {
   paperConfig: any = this.paperConfigObject.paperConfig;
   corridorConfig: any = this.paperConfigObject.corridorConfig;
   freeFormConfig: any = this.paperConfigObject.freeFormConfig;
-  corridorObject: Corridor = new Corridor();
+  corridorObject: Corridor = new Corridor(this.paper);
   freeFormObject: FreeForm = new FreeForm();
   freeFormDrawingInfo: FreeFormDrawingData = new FreeFormDrawingData();
 
@@ -64,6 +64,7 @@ export class Editor2dComponent implements OnInit, OnChanges {
 
   ngAfterViewInit(): void {
     this.paper = Raphael(this.canvas.id, this.paperConfig.containerWidth, this.paperConfig.containerHeight);
+    this.corridorObject = new Corridor(this.paper);
     this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true);
   }
 
