@@ -26,13 +26,11 @@ export class Corridor extends Editor2DConfig {
     let mouseDownX;
     let mouseDownY;
     $("#" + containerId).unbind("mousedown mousemove mouseup");
-    
     // mousedown event
     $("#" + containerId).mousedown((e) => {
       console.log('this', this);
       // Prevent text edit cursor while dragging in webkit browsers
-      $("#" + containerId).unbind("mousedown");
-      $("#" + containerId).unbind("mousedown");
+      $("#" + containerId).unbind("mousedown");      
       e.originalEvent.preventDefault();
       var offset = $("#svg_paper").offset();
       mouseDownX = this.snapInitPoint(e.pageX - offset.left, corridorConfig.gridSize, paperConfig.data.viewboxRatio);

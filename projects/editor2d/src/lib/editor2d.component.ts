@@ -34,6 +34,11 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
   freeFormObject: FreeForm = new FreeForm();
   freeFormDrawingInfo: FreeFormDrawingData = new FreeFormDrawingData();
 
+  readonly CONTEXT = {
+    corridor: 'corridor', 
+    line: 'line'
+  };
+
   @ViewChild('view2d', { static: true })
 
   private canvasRef: ElementRef;
@@ -54,10 +59,10 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
   }
 
   ngOnChanges(changes) {
-    if (this.shapeType == 'Corridor') {
+    if (this.shapeType == this.CONTEXT.corridor) {
       this.corridorCordinates = this.corridorObject.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridorObject, this.paperConfig);
     }
-    if (this.shapeType == 'Line') {
+    if (this.shapeType == this.CONTEXT.line) {
       this.freeformCordinates = this.freeFormObject.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
     }
   }

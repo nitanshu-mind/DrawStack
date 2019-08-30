@@ -84,10 +84,7 @@ export class FreeForm {
     let mouseUpY: any;
     let shape: any;
     let isCorridorDrawn = false;
-    $('#' + containerId).unbind('mousedown');
-    $('#' + containerId).unbind('mousemove');
-    $('#' + containerId).unbind('mouseup');
-    $('#' + containerId).unbind('click');
+    $('#' + containerId).unbind('mousedown mousemove mouseup click');
     var isDrawing = false
     var lastPoint;
 

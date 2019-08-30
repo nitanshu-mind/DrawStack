@@ -17,11 +17,11 @@ export class AppComponent {
   };
   
   enableCorridorDrawing() {
-    this.shapeType = 'Corridor';
+    this.shapeType = 'corridor';
   }
-  
+
   enableLineDrawing() {
-    this.shapeType = 'Line';
+    this.shapeType = 'line';
   }
 
   dataEmit($event) {
