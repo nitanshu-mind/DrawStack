@@ -1,15 +1,13 @@
 import $ from "jquery";
+import { Editor2DConfig } from '../editor2d.config';
 
-export class FreeForm {
+export class FreeForm extends Editor2DConfig{
   freeformPoint = []
   manupulateFreeformPoints = [];
   freeFormPath;
   startingPoint;
   isDrawing = false;
   context = "LINE";
-  freeFormConfig = {
-    ignoreDeviation: 10
-  }
   circle = [];
   tmpLine;
   cuurentPoint;
@@ -31,27 +29,6 @@ export class FreeForm {
         currentPoint.y = c.cy
     }
     return currentPoint;
-  }
-
-  isIgnorable(tLine) {
-    let path = tLine.attrs.path;
-    let len = path.length;
-    if (len > 1)
-      return (path[len - 2][1] < 5 || path[len - 1][1] > -5) && (path[len - 1][2] < 5 || path[len - 2][2] > -5);
-    return false;
-  }
-
-  matchPoint(point, tLine) {
-    var path = tLine.attrs.path,
-      len = path.length,
-      dx = point.x - path[len - 1][1],
-      dy = point.y - path[len - 1][2];
-    if (dx > -5 && dx < 5)
-      point.x = path[len - 1][1];
-
-    if (dy > -5 && dy < 5)
-      point.y = path[len - 1][2];
-    return point;
   }
 
   buildPath(paper, point, isClosed, isMoving) {
@@ -76,7 +53,7 @@ export class FreeForm {
     }
   }
 
-  drawFreeform(paper, r, containerId, corridorConfig, paperConfig, freeFormDrawInfo) {
+  drawFreeform(paper, freeFormConfig, containerId, corridorConfig, paperConfig, freeFormDrawInfo) {
     this.context = "LINE"
     let mouseDownX = 0;
     let mouseDownY = 0;
@@ -93,7 +70,7 @@ export class FreeForm {
         isDrawing = true;
         let isClosedPath = false;
         e.originalEvent.preventDefault();
-        var offset = $("#svg_paper").offset();
+        var offset = $("#"+containerId).offset();
         mouseDownX = e.pageX - offset.left;
         mouseDownY = e.pageY - offset.top;
         lastPoint = { x: mouseDownX, y: mouseDownY };
@@ -123,7 +100,7 @@ export class FreeForm {
     $('#' + containerId).mouseup((e) => {
       if (this.context === "LINE") {
         e.originalEvent.preventDefault();
-        var offset = $("#svg_paper").offset();
+        var offset = $("#"+containerId).offset();
         var yRemainingHeight = paper.height % (corridorConfig.gridSize * paperConfig.data.viewboxRatio);
         mouseUpX = this.snapInitPoint(e.pageX - offset.left, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
         mouseUpY = this.snapInitPoint(e.pageY - offset.top, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
@@ -131,15 +108,15 @@ export class FreeForm {
         this.cuurentPoint = { x: mouseUpX, y: mouseUpY }
         this.freeformPoint.push(this.cuurentPoint);
         this.manupulateFreeformPoints.push({
-          x: this.snapInitPoint((mouseUpX - pOffset) / paperConfig.data.viewboxRatio, corridorConfig.gridSize, 1),
-          y: this.snapInitPoint((paper.height - mouseUpY.toFixed(2) - pOffset) / paperConfig.data.viewboxRatio, corridorConfig.gridSize, 1)
+          x: this.snapInitPoint((mouseUpX - pOffset) / paperConfig.data.viewboxRatio, corridorConfig.gridSize, freeFormConfig.ratioOne),
+          y: this.snapInitPoint((paper.height - mouseUpY.toFixed(2) - pOffset) / paperConfig.data.viewboxRatio, corridorConfig.gridSize, freeFormConfig.ratioOne)
         });
         freeFormDrawInfo.drawPoints = this.manupulateFreeformPoints;
         freeFormDrawInfo.realPoints = { snapY: mouseUpY, x: e.pageX - offset.left, y: e.pageY - offset.top, yRemainingHeight: yRemainingHeight, ratio: paperConfig.data.viewboxRatio };
         freeFormDrawInfo.paper = { width: paper.width, height: paper.height }
         var isClosed = this.isClosedPolyLoop(this.cuurentPoint);
         if (!this.freeFormPath || !isClosed) {
-          shape = this.drawCircle(paper, this.cuurentPoint.x, this.cuurentPoint.y, r);
+          shape = this.drawCircle(paper, this.cuurentPoint.x, this.cuurentPoint.y, freeFormConfig.radius);
           this.circle.push(shape);
         }
         if (isDrawing) {
@@ -181,8 +158,8 @@ export class FreeForm {
     return p;
   }
 
-  drawCircle(paper, x, y, w) {
-    var element = paper.circle(x, y, 5);
+  drawCircle(paper, x, y, r) {
+    var element = paper.circle(x, y, r);
     this.selectElement(element, x, y);
     return element;
   }

@@ -28,6 +28,9 @@ export class Editor2DConfig extends FeetToPixel {
         gridSize: 10 // in feet
     };
 
-    freeFormConfig = {        
+    freeFormConfig = {  
+        radius: 5, // Radius for circle drawn at the end of the line
+        ignoreDeviation: 10, // Snapping correction of line to the nearest point
+        ratioOne: 1 // Snapping correction of line to the nearest point it stays same as '1'
     };
 }

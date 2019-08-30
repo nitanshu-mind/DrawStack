@@ -32,7 +32,7 @@ export class Corridor extends Editor2DConfig {
       // Prevent text edit cursor while dragging in webkit browsers
       $("#" + containerId).unbind("mousedown");      
       e.originalEvent.preventDefault();
-      var offset = $("#svg_paper").offset();
+      var offset = $("#"+containerId).offset();
       mouseDownX = this.snapInitPoint(e.pageX - offset.left, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
       mouseDownY = this.snapInitPoint(e.pageY - offset.top, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
       mouseDownY -= topToCenter;
@@ -149,13 +149,6 @@ export class Corridor extends Editor2DConfig {
     var element = paper.path(`M ${x},${y}  L ${x + w},${y} L ${x + w},${y + h} L ${x},${y + h} L ${x}, ${y} z` +
       `M ${x},${y + h + g}  L ${x + w},${y + h + g} L ${x + w},${2 * h + y + g} L ${x},${2 * h + y + g} L ${x},${y + h + g} z`)
       .attr({ 'fill': '#D3D3D3', "stroke": '#D3D3D3' })
-    this.selectElement(element, x, y);
-    return element;
-  }
-
-  // draw corridor
-  drawCircle(paper, x, y, w) {
-    var element = paper.circle(x, y, 5);
     this.selectElement(element, x, y);
     return element;
   }

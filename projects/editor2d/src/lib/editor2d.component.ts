@@ -63,7 +63,7 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
       this.corridorCordinates = this.corridorObject.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridorObject, this.paperConfig);
     }
     if (this.shapeType == this.CONTEXT.line) {
-      this.freeformCordinates = this.freeFormObject.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
+      this.freeformCordinates = this.freeFormObject.drawFreeform(this.paper, this.freeFormConfig, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
     }
   }
 
