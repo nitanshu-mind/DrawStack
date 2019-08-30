@@ -1,15 +1,16 @@
 import { FeetToPixel } from './model/feetToPixel';
 
 export class Editor2DConfig extends FeetToPixel {  
-    
+    // TODO: Needs to remove unused variables to make it DRY
     paperConfig = {
-        gridGap: 10,
+        gridGap: 10, // Gap between two Grid lines
         containerHeight: 800, // Height of the Paper
         containerWidth: 800, // Width of the Paper
-        ratio: 1,
-        offset: 3,
-        xLabels: [],
-        yLabels: [],
+        ratio: 1, // Pixel to Feet Ratio
+        offset: 3, // Paper offset for coordinates(0,0) start point
+        xLabels: [], // Labels stored for x Axis
+        yLabels: [], // Labels stored for y Axis
+        // ============ Paper Configuration ===========//    
         data: {
             offset: 30,
             width: 420,
@@ -20,12 +21,12 @@ export class Editor2DConfig extends FeetToPixel {
     };
 
     corridorConfig = {
-        x: 10,
-        y: 10,
-        w: 1,
-        h: 30 * this.paperConfig.data.viewboxRatio,
-        g: 10 * this.paperConfig.data.viewboxRatio,
-        gridSize: 10 // in feet
+        x: 10, // x Axis of corridor
+        y: 10, // y Axis of corridor
+        w: 1, //  Default widht of corridor  
+        h: 30 * this.paperConfig.data.viewboxRatio, // Height of the one sided corridor 
+        g: 10 * this.paperConfig.data.viewboxRatio, // Gap between two corridor sides
+        gridSize: 10 // Gap between two Grid lines
     };
 
     freeFormConfig = {  
