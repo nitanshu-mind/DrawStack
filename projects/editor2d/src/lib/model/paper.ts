@@ -1,6 +1,6 @@
 import { Editor2DConfig } from '../editor2d.config';
 
-export class Paper extends Editor2DConfig{
+export class Paper extends Editor2DConfig {
 
   public drawAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid) {
     let paperWidth = paper.width,
@@ -10,7 +10,7 @@ export class Paper extends Editor2DConfig{
     this.drawXAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid, paperCenterOfY)
     this.drawYAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid, paperWidth, paperHeight, paperCenterOfX)
   }
-  
+
   private drawXAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid, paperCenterOfY) {
     for (var i = gridGap * ratio * -30, j = -33; i <= containerWidth; i += gridGap * ratio, j++) {
       if (j % 5 == 0) {

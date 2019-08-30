@@ -1,9 +1,5 @@
-<!-- <div id="container"></div>
-<app-paper></app-paper> -->
-
-
-=====>{{updatedData|json}}
-
 <lib-editor2d [shapeType]="shapeType" [userConfig]="userConfig" (output)="dataEmit($event)"></lib-editor2d>
 <input type="button" value="Draw Corridor" (click)=enableCorridorDrawing()/>
 <input type="button" value="Draw Line" (click)=enableLineDrawing() />
+
+Raw Data: {{updatedData|json}}

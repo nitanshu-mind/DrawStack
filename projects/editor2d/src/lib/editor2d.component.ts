@@ -37,8 +37,7 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
   @ViewChild('view2d', { static: true })
 
   private canvasRef: ElementRef;
-  messageFromSibling: string;
-  coredis: any;
+  corridorCordinates: any;
   freeformCordinates: any;
   private get canvas(): HTMLCanvasElement {
     return this.canvasRef.nativeElement;
@@ -56,7 +55,7 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
 
   ngOnChanges(changes) {
     if (this.shapeType == 'Corridor') {
-      this.coredis = this.corridorObject.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridorObject, this.paperConfig);
+      this.corridorCordinates = this.corridorObject.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridorObject, this.paperConfig);
     }
     if (this.shapeType == 'Line') {
       this.freeformCordinates = this.freeFormObject.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
@@ -64,7 +63,7 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
   }
 
   ngDoCheck() {
-    this.output.emit({ freeForm: this.freeformCordinates, corridor: this.coredis });
+    this.output.emit({ freeFormCordinates: this.freeformCordinates, corridorCordinates: this.corridorCordinates });
   }
 
   ngAfterViewInit(): void {
