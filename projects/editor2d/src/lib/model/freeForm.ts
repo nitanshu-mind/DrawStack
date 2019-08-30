@@ -1,6 +1,6 @@
 import $ from "jquery";
-export class FreeForm {
 
+export class FreeForm {
   freeformPoint = []
   manupulateFreeformPoints = [];
   freeFormPath;

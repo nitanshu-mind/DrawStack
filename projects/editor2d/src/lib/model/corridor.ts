@@ -25,9 +25,8 @@ export class Corridor extends Editor2DConfig {
     var startPoint, endPoint;
     let mouseDownX;
     let mouseDownY;
-    $("#" + containerId).unbind("mousedown");
-    $("#" + containerId).unbind("mousemove");
-    $("#" + containerId).unbind("mouseup");
+    $("#" + containerId).unbind("mousedown mousemove mouseup");
+    
     // mousedown event
     $("#" + containerId).mousedown((e) => {
       console.log('this', this);
