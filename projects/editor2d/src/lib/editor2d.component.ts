@@ -18,11 +18,10 @@ declare const Raphael: any;
   `,
   styles: []
 })
-export class Editor2dComponent implements OnInit, OnChanges, OnDestroy, DoCheck {
+export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
 
   @Input() public shapeType: string = "";
   @Input() public userConfig: PaperConfig = null;
-
   @Output() public output: EventEmitter<any> = new EventEmitter();
 
   paper: any;
@@ -48,30 +47,24 @@ export class Editor2dComponent implements OnInit, OnChanges, OnDestroy, DoCheck 
   constructor() { }
 
   ngOnInit() {
-
     if (this.userConfig != null) {
       if (this.userConfig.width) this.paperConfigObject.paperConfig.containerWidth = this.userConfig.width;
       if (this.userConfig.height) this.paperConfigObject.paperConfig.containerHeight = this.userConfig.height;
       if (this.userConfig.gridGap) this.paperConfigObject.paperConfig.containerHeight = this.userConfig.gridGap;
     }
-
   }
+
   ngOnChanges(changes) {
     if (this.shapeType == 'Corridor') {
       this.coredis = this.corridorObject.drawShape(this.corridorConfig, this.canvas.id, this.paper, this.corridorObject, this.paperConfig);
-      console.log('draw corridor ', this.coredis)
     }
     if (this.shapeType == 'Line') {
       this.freeformCordinates = this.freeFormObject.drawFreeform(this.paper, 10, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
-      console.log('===============', this.freeformCordinates)
     }
   }
 
   ngDoCheck() {
-    console.log(this.coredis, this.freeformCordinates);
-    this.output.emit(this.coredis);
-
-    this.output.emit({freeForm: this.freeformCordinates, corridor: this.coredis});
+    this.output.emit({ freeForm: this.freeformCordinates, corridor: this.coredis });
   }
 
   ngAfterViewInit(): void {
@@ -79,10 +72,4 @@ export class Editor2dComponent implements OnInit, OnChanges, OnDestroy, DoCheck 
     this.corridorObject = new Corridor(this.paper);
     this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true);
   }
-
-
-  ngOnDestroy() {
-
-  }
-
 }

@@ -4,10 +4,11 @@ import { CorridorDrawPoints } from './corridorDrawPoints';
 
 declare const svgPanZoom: any;
 
-export class Corridor {
+export class Corridor extends Editor2DConfig{
   paper: any;
   shape: any;
   constructor(paper){
+    super();
     this.paper = paper;
   }
   x: number;
@@ -16,10 +17,8 @@ export class Corridor {
   h: number;
   g: number;
   gridSize: number;
-  paperConfigObject: Editor2DConfig = new Editor2DConfig();
-  paperConfig: any = this.paperConfigObject.paperConfig;
-  corridorConfig: any = this.paperConfigObject.corridorConfig;
   corridor: CorridorDrawPoints = new CorridorDrawPoints();
+  
   drawShape(corridorConfig, containerId, paper, corridor, paperConfig) {
     var x = corridorConfig.x,
       y = corridorConfig.y,
