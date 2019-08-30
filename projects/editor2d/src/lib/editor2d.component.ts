@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, OnChanges, DoCheck, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, OnChanges, DoCheck, OnDestroy, Output, EventEmitter, SimpleChanges, KeyValueDiffers } from '@angular/core';
 import { Paper } from './model/paper'
 import { Editor2DConfig } from './editor2d.config';
 import { FreeFormDrawingData } from './model/freeFormDrawingData';
@@ -35,20 +35,30 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
   freeFormDrawingInfo: FreeFormDrawingData = new FreeFormDrawingData();
 
   readonly CONTEXT = {
-    corridor: 'corridor', 
+    corridor: 'corridor',
     line: 'line'
   };
 
   @ViewChild('view2d', { static: true })
 
   private canvasRef: ElementRef;
+
+  messageFromSibling: string;
   corridorCordinates: any;
+  oldCorridorCordinates: any = {};
+  oldfreeformCordinates = {};
   freeformCordinates: any;
   private get canvas(): HTMLCanvasElement {
     return this.canvasRef.nativeElement;
   }
 
-  constructor() { }
+  constructor(private differs: KeyValueDiffers) {
+    this.oldCorridorCordinates = {};
+    this.corridorCordinates = {};
+    this.freeformCordinates = {};
+    this.oldCorridorCordinates['myCorridor'] = differs.find(this.corridorCordinates).create();
+    this.oldfreeformCordinates['myFreeform'] = differs.find(this.freeformCordinates).create();
+  }
 
   ngOnInit() {
     if (this.userConfig != null) {
@@ -68,7 +78,11 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
   }
 
   ngDoCheck() {
-    this.output.emit({ freeFormCordinates: this.freeformCordinates, corridorCordinates: this.corridorCordinates });
+    var checkDetectionCorridor = this.oldCorridorCordinates['myCorridor'].diff(this.corridorCordinates);
+    var checkDetectionFreeform = this.oldfreeformCordinates['myFreeform'].diff(this.freeformCordinates);
+    if (checkDetectionCorridor != null || checkDetectionFreeform != null) {
+      this.output.emit({ freeForm: this.freeformCordinates, corridor: this.corridorCordinates });
+    }
   }
 
   ngAfterViewInit(): void {
