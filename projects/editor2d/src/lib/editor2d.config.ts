@@ -4,8 +4,8 @@ export class Editor2DConfig extends FeetToPixel {
     
     paperConfig = {
         gridGap: 10,
-        containerHeight: 800,
-        containerWidth: 800,
+        containerHeight: 800, // Height of the Paper
+        containerWidth: 800, // Width of the Paper
         ratio: 1,
         offset: 3,
         xLabels: [],

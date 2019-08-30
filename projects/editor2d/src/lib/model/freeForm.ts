@@ -53,22 +53,44 @@ export class FreeForm extends Editor2DConfig{
     }
   }
 
+  snapInitPoint(point, gridSize, ratio): any {
+    console.log(point, gridSize, ratio, "point,gridSize, ratio")
+    var gridSizeInPX = gridSize * ratio;
+    let p = Math.floor(point / gridSizeInPX) * gridSizeInPX;
+    let deviation = point % (gridSizeInPX);
+    if (deviation > gridSizeInPX / 2)
+      p = p + (gridSizeInPX)
+    console.log(p, "p")
+    return p;
+  }
+
+  drawCircle(paper, x, y, r) {
+    var element = paper.circle(x, y, r);
+    this.selectElement(element, x, y);
+    return element;
+  }
+
+  selectElement(element, x, y) {
+    $(element.node).attr('id', 'path' + x + y);
+    element.click(function (e) {
+      $(element.node).attr('id');
+    });
+  }
+
   drawFreeform(paper, freeFormConfig, containerId, corridorConfig, paperConfig, freeFormDrawInfo) {
     this.context = "LINE"
     let mouseDownX = 0;
     let mouseDownY = 0;
     let mouseUpX = 0;
     let mouseUpY: any;
-    let shape: any;
-    let isCorridorDrawn = false;
-    $('#' + containerId).unbind('mousedown mousemove mouseup click');
+    let shape: any;    
     var isDrawing = false
     var lastPoint;
 
+    $('#' + containerId).unbind('mousedown mousemove mouseup click');
     $('#' + containerId).mousedown((e) => {
       if (this.context === "LINE") {
-        isDrawing = true;
-        let isClosedPath = false;
+        isDrawing = true;        
         e.originalEvent.preventDefault();
         var offset = $("#"+containerId).offset();
         mouseDownX = e.pageX - offset.left;
@@ -85,7 +107,6 @@ export class FreeForm extends Editor2DConfig{
           cuurentPoint = { x: upX, y: upY };
         if (lastPoint)
           cuurentPoint = this.snapPointToLine(lastPoint, cuurentPoint);
-
         var isClosedPath = this.isClosedPolyLoop(cuurentPoint);
         if (isDrawing) {
           this.buildPath(paper, cuurentPoint, isClosedPath, true);
@@ -137,37 +158,10 @@ export class FreeForm extends Editor2DConfig{
             else
               tempPath += ` L ${this.freeformPoint[i].x},${this.freeformPoint[i].y} `
           }
-          this.tmpLine.attr({ path: tempPath + `Z` });
-          // Returns co-ordinates
-          let setAxisPoints = this.manupulateFreeformPoints;
+          this.tmpLine.attr({ path: tempPath + `Z` });             
         }
-      }
-      console.info("Freeform", this.manupulateFreeformPoints);
+      }      
     });
     return this.manupulateFreeformPoints;
-  }
-
-  snapInitPoint(point, gridSize, ratio): any {
-    console.log(point, gridSize, ratio, "point,gridSize, ratio")
-    var gridSizeInPX = gridSize * ratio;
-    let p = Math.floor(point / gridSizeInPX) * gridSizeInPX;
-    let deviation = point % (gridSizeInPX);
-    if (deviation > gridSizeInPX / 2)
-      p = p + (gridSizeInPX)
-    console.log(p, "p")
-    return p;
-  }
-
-  drawCircle(paper, x, y, r) {
-    var element = paper.circle(x, y, r);
-    this.selectElement(element, x, y);
-    return element;
-  }
-
-  selectElement(element, x, y) {
-    $(element.node).attr('id', 'path' + x + y);
-    element.click(function (e) {
-      $(element.node).attr('id');
-    });
   }
 }
