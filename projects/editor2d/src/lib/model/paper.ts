@@ -1,7 +1,7 @@
 import { Editor2DConfig } from '../editor2d.config';
 declare const loadSVGCorridor: any;
 
-export class Paper extends Editor2DConfig {
+export class Paper extends Editor2DConfig{
   paper: any;
   constructor(paper) {
     super();
@@ -55,12 +55,15 @@ export class Paper extends Editor2DConfig {
   }
 
   drawing2DArea(paper, svgUrl) {
-    // this.resetView();    
     paper.image(svgUrl,
       this.paperConfig.data.viewboxOffset * this.paperConfig.data.viewboxRatio,
       paper.containerHeight - (this.paperConfig.data.height * this.paperConfig.data.viewboxRatio - this.paperConfig.data.viewboxOffset * this.paperConfig.data.viewboxRatio),
       360 * this.paperConfig.data.viewboxRatio,
       240 * this.paperConfig.data.viewboxRatio
-    );
+    )     
+  }
+
+  resetView(paper) {
+    paper.clear();   
   }
 }

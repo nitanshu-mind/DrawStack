@@ -76,8 +76,9 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
     if (this.shapeType == this.CONTEXT.line) {
       this.freeformCordinates = this.freeFormObject.drawFreeform(this.paper, this.freeFormConfig, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
     }
-    if (this.svgUrl != "" && this.paper != undefined){
-      debugger
+    if (this.svgUrl != undefined && this.paper != undefined){     
+      this.paperObject.resetView(this.paper); 
+      this.initializePaper(); 
       this.paperObject.drawing2DArea(this.paper, this.svgUrl);
     }
   }
@@ -91,6 +92,10 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
   }
 
   ngAfterViewInit(): void {
+    this.initializePaper();
+  }
+  
+  initializePaper(){
     this.paper = Raphael(this.canvas.id, this.paperConfig.containerWidth, this.paperConfig.containerHeight);
     this.corridorObject = new Corridor(this.paper);
     this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true);
