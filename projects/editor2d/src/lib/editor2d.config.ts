@@ -6,7 +6,7 @@ export class Editor2DConfig extends FeetToPixel {
         gridGap: 10, // Gap between two Grid lines
         containerHeight: 800, // Height of the Paper
         containerWidth: 800, // Width of the Paper
-        ratio: 1, // Pixel to Feet Ratio
+        ratio: this.calFeetToPixel(420, 300, 30, 'svg_paper'), // Pixel to Feet Ratio
         offset: 3, // Paper offset for coordinates(0,0) start point
         xLabels: [], // Labels stored for x Axis
         yLabels: [], // Labels stored for y Axis
@@ -16,7 +16,7 @@ export class Editor2DConfig extends FeetToPixel {
             width: 420,
             height: 300,
             viewboxOffset: 30,
-            viewboxRatio: this.calFeetToPixel(420, 300, 30, 'svg_canvas'),
+            viewboxRatio: this.calFeetToPixel(420, 300, 30, 'svg_paper'),
         }        
     };
 

@@ -1,9 +1,7 @@
 export abstract class FeetToPixel{
-public calFeetToPixel(width, height, viewboxOffset, canvasId) {
-        // var clientWidth = document.getElementById(canvasId).clientWidth,
-        // clientHeight = document.getElementById(canvasId).clientHeight;
-        var clientWidth = 429,
-            clientHeight = 427;
+public calFeetToPixel(width, height, viewboxOffset, canvasId) {    
+        var clientWidth = document.getElementById(canvasId) == null ? 451 : document.getElementById(canvasId).clientWidth  ,
+        clientHeight = document.getElementById(canvasId) == null ? 394 : document.getElementById(canvasId).clientHeight;        
         var viewboxWidth = clientWidth;
         var actualHeight = clientHeight,
             feetToPixel: any = (viewboxWidth / width).toFixed(3),

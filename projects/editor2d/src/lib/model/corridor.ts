@@ -54,19 +54,10 @@ export class Corridor extends Editor2DConfig {
         width = this.getDistaanceBetween(mouseDownX, mouseDownY + topToCenter, upX, upY),
         height = upY - mouseDownY,
         angle = this.getAngle(mouseDownX, mouseDownY + topToCenter, upX, upY);
-      width = this.snapInitPoint(width, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
-      this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
-      ft = paper.freeTransform(
-        this.shape,
-        {
-          snap: { drag: corridorConfig.gridSize * paperConfig.viewboxRatio },
-          snapDist: {
-            drag: corridorConfig.gridSize * paperConfig.viewboxRatio
-          }
-        },
-        this.freeTransformHandler.bind(this)
-      );
-      ft.attrs.rotate = angle;
+        width = this.snapInitPoint(width, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
+        this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
+      ft = paper.freeTransform(this.shape,{},this.freeTransformHandler.bind(this));
+      ft.attrs.rotate = angle;           
       ft.apply();
 
       $("#" + containerId).click((e) => {
@@ -120,13 +111,13 @@ export class Corridor extends Editor2DConfig {
 
       if (events[0] == "drag end" || events[0] == "rotate end" || events[0] == "scale end") {
         var cx = this.snapInitPoint(startPoint.x, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio),
-          cy = this.snapInitPoint(startPoint.y, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
-        let snapValue = this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio,
+          cy = this.snapInitPoint(startPoint.y, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);  
+          let snapValue = this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio,
           distX = startPoint.x - Math.round(startPoint.x / snapValue) * snapValue,
           distY = startPoint.y - Math.round(startPoint.y / snapValue) * snapValue;
 
         ft.attrs.translate.x -= distX;
-        ft.attrs.translate.y -= distY;
+        ft.attrs.translate.y -= distY;        
         ft.apply();
 
         this.corridor.sp = {
@@ -211,9 +202,9 @@ export class Corridor extends Editor2DConfig {
     let p = Math.floor(point / gridSizeInPX) * gridSizeInPX;
     let deviation = point % (gridSizeInPX);
     if (deviation > gridSizeInPX / 2)
-      p = p + (gridSizeInPX)
-    console.log(p, "p")
-    return p;
+      p = p + (gridSizeInPX)    
+      console.log(p, "p")
+      return p;
   }
 
   bindZoomHandler = function () {
