@@ -1,14 +1,19 @@
 import { Editor2DConfig } from '../editor2d.config';
+declare const loadSVGCorridor: any;
 
 export class Paper extends Editor2DConfig {
-
-  public drawAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid) {    
+  paper: any;
+  constructor(paper) {
+    super();
+    this.paper = paper;
+  }
+  public drawAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid) {
     let paperWidth = paper.width,
       paperHeight = paper.height,
       paperCenterOfX = containerWidth / 2,
       paperCenterOfY = containerHeight / 2;
     this.drawXAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid, paperCenterOfY)
-    this.drawYAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid, paperWidth, paperHeight, paperCenterOfX)
+    this.drawYAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid, paperWidth, paperHeight, paperCenterOfX)    
   }
 
   private drawXAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid, paperCenterOfY) {
@@ -33,7 +38,7 @@ export class Paper extends Editor2DConfig {
   private drawYAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid, paperWidth, paperHeight, paperCenterOfX) {
     for (var i = gridGap * ratio * -30, j = -33; i <= containerHeight; i += gridGap * ratio, j++) {
       if (j % 5 == 0) {
-        if (isDrawGrid) {        
+        if (isDrawGrid) {
           paper.path("M" + (gridGap * ratio * -30) + "," + (paperHeight - i) + "L" + paperWidth + "," + (paperHeight - i)).attr({ "stroke": "#696969", "stroke-width": 0.50 });
         }
         // paper.text(containerWidth-10,(containerHeight-i),(containerHeight-i).toFixed(1)).attr("fill", "red"); // for y
@@ -47,5 +52,15 @@ export class Paper extends Editor2DConfig {
         }
       }
     }
+  }
+
+  drawing2DArea(paper, svgUrl) {
+    // this.resetView();    
+    paper.image(svgUrl,
+      this.paperConfig.data.viewboxOffset * this.paperConfig.data.viewboxRatio,
+      paper.containerHeight - (this.paperConfig.data.height * this.paperConfig.data.viewboxRatio - this.paperConfig.data.viewboxOffset * this.paperConfig.data.viewboxRatio),
+      360 * this.paperConfig.data.viewboxRatio,
+      240 * this.paperConfig.data.viewboxRatio
+    );
   }
 }

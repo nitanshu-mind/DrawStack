@@ -22,10 +22,11 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
 
   @Input() public shapeType: string = "";
   @Input() public userConfig: PaperConfig = null;
+  @Input() public svgUrl: string = "";
   @Output() public output: EventEmitter<any> = new EventEmitter();
 
   paper: any;
-  paperObject: Paper = new Paper();
+  paperObject: Paper = new Paper(this.paper);
   paperConfigObject: Editor2DConfig = new Editor2DConfig();
   paperConfig: any = this.paperConfigObject.paperConfig;
   corridorConfig: any = this.paperConfigObject.corridorConfig;
@@ -74,6 +75,10 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
     }
     if (this.shapeType == this.CONTEXT.line) {
       this.freeformCordinates = this.freeFormObject.drawFreeform(this.paper, this.freeFormConfig, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
+    }
+    if (this.svgUrl != "" && this.paper != undefined){
+      debugger
+      this.paperObject.drawing2DArea(this.paper, this.svgUrl);
     }
   }
 
