@@ -77,8 +77,9 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
       this.freeformCordinates = this.freeFormObject.drawFreeform(this.paper, this.freeFormConfig, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
     }
     if (this.svgUrl != undefined && this.paper != undefined){     
-      this.paperObject.resetView(this.paper); 
-      this.initializePaper(); 
+      this.paperObject.resetView(this.paper);
+      this.shapeType= "";
+      this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true);
       this.paperObject.drawing2DArea(this.paper, this.svgUrl);
     }
   }
