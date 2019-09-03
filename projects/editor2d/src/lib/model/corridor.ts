@@ -141,6 +141,7 @@ export class Corridor extends Editor2DConfig {
       `M ${x},${y + h + g}  L ${x + w},${y + h + g} L ${x + w},${2 * h + y + g} L ${x},${2 * h + y + g} L ${x},${y + h + g} z`)
       .attr({ 'fill': '#D3D3D3', "stroke": '#D3D3D3' })
     this.selectElement(element, x, y);
+    element.class = "drawCorridor";
     return element;
   }
 
@@ -230,5 +231,12 @@ export class Corridor extends Editor2DConfig {
 
   getPoint(obj) {
     return { x: obj.attrs.cx, y: obj.attrs.cy }
+  }
+
+  getUpdateCorridorPath(paper, x, y, w, h, g) {
+    var path = `M ${x},${y}  L ${x+w},${y} L ${x+w},${y+h} L ${x},${y+h} L ${x}, ${y} z` +
+        `M ${x},${y+h+g}  L ${x+w},${y+h+g} L ${x+w},${2*h+y+g} L ${x},${2*h+y+g} L ${x},${y+h+g} z`
+     
+    return path;                
   }
 }

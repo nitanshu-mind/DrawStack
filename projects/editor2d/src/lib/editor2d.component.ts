@@ -10,13 +10,14 @@ declare const Raphael: any;
 
 @Component({
   selector: 'lib-editor2d',
-  template: `
-    <div id="container"></div>
-    <div id="view2d-canvas" style="padding-right: 5px">
-      <div #view2d id="svg_paper"></div>
-    </div>
+  template: `    
+  <div id="view2d-canvas" style="padding-right: 5px; position: relative;">
+    <div #view2d id="svg_paper"></div>
+    <div id="ruller_left"></div>
+    <div id="ruller_bottom"></div>  
+  </div>   
   `,
-  styles: []
+  styleUrls: ['./editor2d.component.scss']
 })
 export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
 
@@ -26,7 +27,12 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
   @Output() public output: EventEmitter<any> = new EventEmitter();
 
   paper: any;
-  paperObject: Paper = new Paper(this.paper);
+  rullerLeft: any; 
+  rullerBottom: any;
+  rullerLeftPaper: any;
+  rullerBottomPaper: any;
+  
+  paperObject: Paper = new Paper(this.paper, this.rullerLeftPaper, this.rullerBottomPaper);
   paperConfigObject: Editor2DConfig = new Editor2DConfig();
   paperConfig: any = this.paperConfigObject.paperConfig;
   corridorConfig: any = this.paperConfigObject.corridorConfig;
@@ -79,7 +85,7 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
     if (this.svgUrl != undefined && this.paper != undefined){     
       this.paperObject.resetView(this.paper);
       this.shapeType= "";
-      this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true);
+      this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true, this.rullerLeftPaper, this.rullerBottomPaper);
       this.paperObject.drawing2DArea(this.paper, this.svgUrl);
     }
   }
@@ -98,7 +104,11 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
   
   initializePaper(){
     this.paper = Raphael(this.canvas.id, this.paperConfig.containerWidth, this.paperConfig.containerHeight);
+    this.rullerLeft =document.getElementById('ruller_left');
+    this.rullerBottom = document.getElementById('ruller_bottom');
+    this.rullerLeftPaper = Raphael('ruller_left', this.rullerLeft.clientWidth, this.rullerLeft.clientHeight);
+    this.rullerBottomPaper = Raphael('ruller_bottom', this.rullerBottom.clientWidth, this.rullerBottom.clientHeight);
     this.corridorObject = new Corridor(this.paper);
-    this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true);
+    this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true, this.rullerLeftPaper, this.rullerBottomPaper);
   }
 }
