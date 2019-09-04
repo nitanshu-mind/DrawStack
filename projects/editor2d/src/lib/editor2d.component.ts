@@ -85,7 +85,7 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
       this.freeformCordinates = this.freeFormObject.drawFreeform(this.paper, this.freeFormConfig, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
     }
     if (this.svgUrl != undefined && this.paper != undefined){     
-      this.paperObject.resetView(this.paper);
+      this.paperObject.resetView(this.paper, this.rullerLeftPaper, this.rullerBottomPaper);
       this.shapeType= "";
       this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true, this.rullerLeftPaper, this.rullerBottomPaper);
       this.paperObject.drawing2DArea(this.paper, this.svgUrl);
@@ -109,12 +109,10 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
     this.rullerLeft =document.getElementById('ruller_left');
     this.rullerBottom = document.getElementById('ruller_bottom');
     this.rullerLeftPaper = Raphael('ruller_left', this.rullerLeft.clientWidth, this.rullerLeft.clientHeight);
-    this.rullerBottomPaper = Raphael('ruller_bottom', this.rullerBottom.clientWidth, this.rullerBottom.clientHeight);
-    
+    this.rullerBottomPaper = Raphael('ruller_bottom', this.rullerBottom.clientWidth, this.rullerBottom.clientHeight);    
     this.rullerBottomPaper.canvas.id = 'rullerBottomPaper';
     this.rullerLeftPaper.canvas.id = 'rullerLeftPaper';
     this.corridorObject = new Corridor(this.paper);
     this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true, this.rullerLeftPaper, this.rullerBottomPaper);
-    this.zoomHandler = new ZoomHandler();  
   }
 }

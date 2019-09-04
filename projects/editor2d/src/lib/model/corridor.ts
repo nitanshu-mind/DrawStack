@@ -50,12 +50,13 @@ export class Corridor extends Editor2DConfig {
       var zoomPoint;
 
       if (this.shape) {
+        debugger
         this.shape.remove();
         ft.unplug();        
         zoomPoint = this.zoomHandler.isPanZoomAplly? this.zoomHandler.panZoomInstance.getMouseMovePoint(): null;
         this.zoomHandler.destroyPanZoom();
       } else return false;
-
+      $("#" + containerId)
       var offset = $("#" + containerId).offset(),
         upX = e.pageX - offset.left,
         upY = e.pageY - offset.top,

@@ -14,7 +14,9 @@ export class Paper extends Editor2DConfig{
 
   constructor(paper,rullerLeftPaper,  rullerBottomPaper) {
     super();
-    this.paper = paper;    
+    this.paper = paper;  
+    this.rullerLeftPaper = rullerLeftPaper;
+    this.rullerBottomPaper = rullerBottomPaper;  
   }
   public drawAxis(paper, gridGap, offset, ratio, containerWidth, containerHeight, isDrawGrid, rullerLeftPaper, rullerBottomPaper) {
     let paperWidth = paper.width,
@@ -70,7 +72,9 @@ export class Paper extends Editor2DConfig{
     )     
   }
 
-  resetView(paper) {
+  resetView(paper, rullerLeftPaper, rullerBottomPaper) {
     paper.clear();   
+    rullerLeftPaper.clear();
+    rullerBottomPaper.clear();
   }
 }
