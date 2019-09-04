@@ -153,7 +153,7 @@ export class Corridor extends Editor2DConfig {
           y: (this.paper.height - endPoint.y).toFixed(2),
           z: 0
         };
-        // this.panZoomInstance.enablePan();
+        this.zoomHandler.panZoomInstance.enablePan();
       }
     }
   };

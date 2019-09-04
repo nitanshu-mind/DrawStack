@@ -1,5 +1,6 @@
 import $ from "jquery";
 import { Editor2DConfig } from '../editor2d.config';
+import { ZoomHandler } from './zoomHandler';
 
 export class FreeForm extends Editor2DConfig{
   freeformPoint = []
@@ -11,6 +12,7 @@ export class FreeForm extends Editor2DConfig{
   circle = [];
   tmpLine;
   cuurentPoint;
+  zoomHandler: any;
 
   isClosedPolyLoop(lastPoint) {
     if (!this.startingPoint || this.circle.length < 3) return false;
@@ -32,6 +34,7 @@ export class FreeForm extends Editor2DConfig{
   }
 
   buildPath(paper, point, isClosed, isMoving) {
+    this.zoomHandler = new ZoomHandler()
     if (!this.freeFormPath) {
       this.freeFormPath = `M ${point.x},${point.y}`
       this.startingPoint = { x: point.x, y: point.y };
@@ -42,14 +45,20 @@ export class FreeForm extends Editor2DConfig{
       else
         this.freeFormPath += `L ${point.x},${point.y} `
 
-      if (this.tmpLine)
-        this.tmpLine.remove();
+      if (this.tmpLine){
+        this.zoomHandler.destroyPanZoom();
+        this.tmpLine.remove();        
+      }
       this.tmpLine = paper.path(this.freeFormPath);
+      this.zoomHandler.bindZoomHandler();
     }
     else {
-      if (this.tmpLine)
+      if (this.tmpLine){
+        this.zoomHandler.destroyPanZoom();
         this.tmpLine.remove();
+      }
       this.tmpLine = paper.path(this.freeFormPath + `L ${point.x},${point.y} `);
+      this.zoomHandler.bindZoomHandler();
     }
   }
 

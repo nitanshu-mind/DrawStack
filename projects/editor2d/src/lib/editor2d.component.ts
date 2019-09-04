@@ -115,8 +115,6 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
     this.rullerLeftPaper.canvas.id = 'rullerLeftPaper';
     this.corridorObject = new Corridor(this.paper);
     this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true, this.rullerLeftPaper, this.rullerBottomPaper);
-    this.zoomHandler = new ZoomHandler();
-    
-    // this.corridorObject.bindZoomHandler();    
+    this.zoomHandler = new ZoomHandler();  
   }
 }
