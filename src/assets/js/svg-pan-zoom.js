@@ -737,7 +737,7 @@
       var inversedScreenCTM = this.svg.getScreenCTM().inverse()
         , relativeMousePoint = SvgUtils.getEventPoint(evt, this.svg).matrixTransform(inversedScreenCTM)
         , zoom = Math.pow(1 + this.options.zoomScaleSensitivity, (-1) * delta); // multiplying by neg. 1 so as to make zoom in/out behavior match Google maps behavior
-    
+      mousemovepoint = relativeMousePoint;
       this.zoomAtPoint(zoom, relativeMousePoint)
     }
     
@@ -1200,6 +1200,9 @@
         , zoomIn: function() {this.zoomBy(1 + that.options.zoomScaleSensitivity); return that.pi}
         , zoomOut: function() {this.zoomBy(1 / (1 + that.options.zoomScaleSensitivity)); return that.pi}
         , getZoom: function() {return that.getRelativeZoom()}
+
+        // get mousemove point
+        , getMouseMovePoint: function(){ return mousemovepoint}
           // CTM update
         , setOnUpdatedCTM: function(fn) {that.options.onUpdatedCTM = fn === null ? null : Utils.proxy(fn, that.publicInstance); return that.pi}
           // Reset
