@@ -1,102 +1,23 @@
 import $ from "jquery";
 import { Editor2DConfig } from '../editor2d.config';
 import { CorridorDrawPoints } from './corridorDrawPoints';
+import { ZoomHandler } from './zoomHandler';
 
 declare const svgPanZoom: any;
 
 export class Corridor extends Editor2DConfig {
   paper: any;
   shape: any;
+  zoomHandler: any;
+  zoom =1;
   constructor(paper) {
     super();
     this.paper = paper;    
   }
   corridor: CorridorDrawPoints = new CorridorDrawPoints();
-  zoomRatio=1;
-  panZoomInstance: any;
-  panAndZoomRullerLeftPaper;
-  panAndZoomRullerBottomPaper;
-  panLeftPaper={x:0,y:0};
-  panBottomPaper={x:0,y:0};
-  zoomLeftPaper={x:0,y:0};
-  zoomBottomPaper={x:0,y:0};
-  viewportMatrix;
-  isPanZoomAplly = false;
-  xLabels = [];
-  yLabels = [];  
 
-  destroyPanZoom(){
-      this.panZoomInstance.destroy();
-      delete this.panZoomInstance;
-      this.panAndZoomRullerLeftPaper.destroy();
-      delete this.panAndZoomRullerLeftPaper
-      this.panAndZoomRullerBottomPaper.destroy();
-      delete this.panAndZoomRullerBottomPaper
-  }
-
-  bindZoomHandler() {       
-      this.panZoomInstance = svgPanZoom('svg', {
-        viewportSelector: 'svg',
-        zoomEnabled: true,
-        panEnabled: true,
-        controlIconsEnabled: false,
-        fit: false,
-        center: false,
-        dblClickZoomEnabled: false,
-        minZoom: 0,
-        maxZoom: 2,
-        onZoom: (newZoom) =>{
-          this.isPanZoomAplly = true;
-          this.zoomRatio = newZoom;
-          var ele = $('.svg-pan-zoom_viewport')[0];
-          this.viewportMatrix = ele.transform.baseVal.consolidate().matrix;          
-          var viewboxSizes = this.panZoomInstance.getSizes();
-          this.clearLabels(newZoom);
-          console.log(this.shape,"shape")
-          var mouseMovepoint = this.panZoomInstance.getMouseMovePoint();
-          this.zoomLeftPaper = {x: 0, y: mouseMovepoint.y};
-          this.zoomBottomPaper = {x: mouseMovepoint.x, y: 0};
-          this.panAndZoomRullerLeftPaper.zoomAtPoint(newZoom, this.zoomLeftPaper);
-          this.panAndZoomRullerBottomPaper.zoomAtPoint(newZoom, this.zoomBottomPaper);
-        },       
-        onPan : (newPan)=>{
-          this.panLeftPaper = {x: 0, y: newPan.y};
-          this.panBottomPaper = {x: newPan.x, y: 0};
-          this.panAndZoomRullerLeftPaper.pan(this.panLeftPaper);
-          this.panAndZoomRullerBottomPaper.pan(this.panBottomPaper)
-        }  
-      });            
-
-    
-     this.panAndZoomRullerLeftPaper = svgPanZoom('#rullerLeftPaper', {
-        zoomEnabled: false,
-        panEnabled: false,
-        controlIconsEnabled: false,
-        fit: false,
-        center: false,
-        dblClickZoomEnabled: false
-     });
-    
-     this.panAndZoomRullerBottomPaper = svgPanZoom('#rullerBottomPaper', {
-        zoomEnabled: false,
-        panEnabled: false,
-        controlIconsEnabled: false,
-        fit: false,
-        center: false,
-        dblClickZoomEnabled: false
-      });
-      this.panZoomInstance.zoom(1)
-    }
-    
-
-  drawShape(corridorConfig, containerId, paper, corridor, paperConfig) {    
-    var panBy = this.panZoomInstance.getPan(),
-    zoomBy = this.panZoomInstance.getZoom(),
-      zoom = this.zoomRatio,
-      panLeft = this.panLeftPaper,
-      panBottom = this.panBottomPaper,
-      zoomBottom = this.zoomBottomPaper,
-      zoomLeft = this.zoomLeftPaper;    
+  drawShape(corridorConfig, containerId, paper, corridor, paperConfig) {       
+    this.zoomHandler = new ZoomHandler();     
     var x = corridorConfig.x,
       y = corridorConfig.y,
       w = corridorConfig.w,
@@ -130,12 +51,11 @@ export class Corridor extends Editor2DConfig {
 
       if (this.shape) {
         this.shape.remove();
-        ft.unplug();
-        zoomPoint = this.isPanZoomAplly? this.panZoomInstance.getMouseMovePoint(): null;
-        this.destroyPanZoom();
+        ft.unplug();        
+        zoomPoint = this.zoomHandler.isPanZoomAplly? this.zoomHandler.panZoomInstance.getMouseMovePoint(): null;
+        this.zoomHandler.destroyPanZoom();
       } else return false;
-      console.log(mouseDownX,"mousedownX");
-      console.log(mouseDownX/zoom,"mousex/zoom")
+
       var offset = $("#" + containerId).offset(),
         upX = e.pageX - offset.left,
         upY = e.pageY - offset.top,
@@ -145,27 +65,23 @@ export class Corridor extends Editor2DConfig {
         width = this.snapInitPoint(width, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
         var   snapValue = corridorConfig.gridSize * paperConfig.viewboxRatio;
         this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
-        console.log(mouseDownX,mouseDownY,"x,y");
-        //shape.transform(`t${-distX},${-distY}`)
-        console.log(zoom,"zoom");
-        console.log(zoomBottom,"zoomBottom")
       ft = paper.freeTransform(this.shape,{},this.freeTransformHandler.bind(this));
       ft.attrs.rotate = angle;           
       ft.apply();
-      this.bindZoomHandler();
+      this.zoomHandler.bindZoomHandler();
       if(zoomPoint){
-        this.panZoomInstance.zoomAtPointBy(zoom,{
-          x: zoomPoint.x+(mouseDownX-zoomPoint.x)/zoom,
-          y: zoomPoint.y+(mouseDownY-zoomPoint.y)/zoom
+        this.zoomHandler.panZoomInstance.zoomAtPointBy(this.zoom,{
+          x: zoomPoint.x+(mouseDownX-zoomPoint.x)/this.zoom,
+          y: zoomPoint.y+(mouseDownY-zoomPoint.y)/this.zoom
         });
     
-        this.panZoomInstance.panBy({
-          x:mouseDownX-(zoomPoint.x+(mouseDownX-zoomPoint.x)/zoom),
-          y:mouseDownY- (zoomPoint.y+(mouseDownY-zoomPoint.y)/zoom)
+        this.zoomHandler.panZoomInstance.panBy({
+          x:mouseDownX-(zoomPoint.x+(mouseDownX-zoomPoint.x)/this.zoom),
+          y:mouseDownY- (zoomPoint.y+(mouseDownY-zoomPoint.y)/this.zoom)
         });
     
-        ft.attrs.translate.x -= mouseDownX-(zoomPoint.x+(mouseDownX-zoomPoint.x)/zoom);
-        ft.attrs.translate.y -= 17.5+mouseDownY- (zoomPoint.y+(mouseDownY-zoomPoint.y)/zoom);
+        ft.attrs.translate.x -= mouseDownX-(zoomPoint.x+(mouseDownX-zoomPoint.x)/this.zoom);
+        ft.attrs.translate.y -= 17.5+mouseDownY- (zoomPoint.y+(mouseDownY-zoomPoint.y)/this.zoom);
         ft.apply();
       }
       $("#" + containerId).click((e) => {
@@ -211,8 +127,8 @@ export class Corridor extends Editor2DConfig {
       this.corridor.bbox = this.shape.getBBox();
 
       if(events[0] == "drag start" || events[0] == "rotate start" || events[0] == "scale start"){
-        if(this.panZoomInstance){
-          this.panZoomInstance.disablePan();
+        if(this.zoomHandler.panZoomInstance){
+          this.zoomHandler.panZoomInstance.disablePan();
         }
       };
 
@@ -237,7 +153,7 @@ export class Corridor extends Editor2DConfig {
           y: (this.paper.height - endPoint.y).toFixed(2),
           z: 0
         };
-        this.panZoomInstance.enablePan();
+        // this.panZoomInstance.enablePan();
       }
     }
   };
@@ -324,20 +240,6 @@ export class Corridor extends Editor2DConfig {
      
     return path;                
   }
-
-  clearLabels(zoomRatio){
-    var trX="t0,"+ (10/zoomRatio);
-    var trY="t"+ 10/zoomRatio+",0";
-
-    for(var i=0; i< this.xLabels.length; i++){
-      this.xLabels[i].attr({ "font-size": 10/zoomRatio });
-      this.xLabels[i].transform(trX);
-    }
-    for(var i=0; i<this.yLabels.length; i++){
-      this.yLabels[i].attr({ "font-size": 10/zoomRatio });
-      this.yLabels[i].transform(trY);
-    }
-}
 }
 
 

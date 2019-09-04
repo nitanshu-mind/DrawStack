@@ -5,6 +5,7 @@ import { FreeFormDrawingData } from './model/freeFormDrawingData';
 import { Corridor } from './model/corridor';
 import { FreeForm } from './model/freeForm';
 import { PaperConfig } from './model/userConfig';
+import { ZoomHandler } from './model/zoomHandler';
 
 declare const Raphael: any;
 
@@ -31,6 +32,7 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
   rullerBottom: any;
   rullerLeftPaper: any;
   rullerBottomPaper: any;
+  zoomHandler: any;
   
   paperObject: Paper = new Paper(this.paper, this.rullerLeftPaper, this.rullerBottomPaper);
   paperConfigObject: Editor2DConfig = new Editor2DConfig();
@@ -113,6 +115,8 @@ export class Editor2dComponent implements OnInit, OnChanges, DoCheck {
     this.rullerLeftPaper.canvas.id = 'rullerLeftPaper';
     this.corridorObject = new Corridor(this.paper);
     this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true, this.rullerLeftPaper, this.rullerBottomPaper);
-    this.corridorObject.bindZoomHandler();    
+    this.zoomHandler = new ZoomHandler();
+    
+    // this.corridorObject.bindZoomHandler();    
   }
 }
