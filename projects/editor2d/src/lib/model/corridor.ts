@@ -60,7 +60,7 @@ export class Corridor extends Editor2DConfig {
       var offset = $("#" + containerId).offset(),
         upX = e.pageX - offset.left,
         upY = e.pageY - offset.top,
-        width = this.getDistaanceBetween(300, mouseDownY + topToCenter, upX, upY),
+        width = this.getDistaanceBetween(mouseDownX, mouseDownY + topToCenter, upX, upY),
         height = upY - mouseDownY,
         angle = this.getAngle(mouseDownX, mouseDownY + topToCenter, upX, upY);
         width = this.snapInitPoint(width, corridorConfig.gridSize, paperConfig.data.viewboxRatio);

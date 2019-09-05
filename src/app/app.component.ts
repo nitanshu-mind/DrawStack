@@ -30,7 +30,7 @@ export class AppComponent {
   }
   
   sendSvgUrl(){
-    this.svgUrl = "http://team.d-alchemy.com:9192//Content/assets/files/models/60eabfd6-cbf7-4cab-8b1f-f69675a23df9/60eabfd6-cbf7-4cab-8b1f-f69675a23df9_637029952369406483.svg"
+    this.svgUrl = "http://team.d-alchemy.com:9192//Content/assets/files/models/e72a3f62-1700-46c8-87f9-8429f988768a/e72a3f62-1700-46c8-87f9-8429f988768a_637032480569269579.svg"
   }
 
 }

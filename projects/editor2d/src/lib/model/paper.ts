@@ -66,7 +66,7 @@ export class Paper extends Editor2DConfig{
   drawing2DArea(paper, svgUrl) {
     paper.image(svgUrl,
       this.paperConfig.data.viewboxOffset * this.paperConfig.data.viewboxRatio,
-      paper.containerHeight - (this.paperConfig.data.height * this.paperConfig.data.viewboxRatio - this.paperConfig.data.viewboxOffset * this.paperConfig.data.viewboxRatio),
+      paper.height - (this.paperConfig.data.height * this.paperConfig.data.viewboxRatio - this.paperConfig.data.viewboxOffset * this.paperConfig.data.viewboxRatio),
       360 * this.paperConfig.data.viewboxRatio,
       240 * this.paperConfig.data.viewboxRatio
     )     
