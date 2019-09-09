@@ -2,7 +2,9 @@ import $ from "jquery";
 import { Editor2DConfig } from '../editor2d.config';
 import { ZoomHandler } from './zoomHandler';
 
-export class FreeForm extends Editor2DConfig{
+export class FreeForm extends Editor2DConfig {
+
+  paper: any;
   freeformPoint = []
   manupulateFreeformPoints = [];
   freeFormPath;
@@ -13,6 +15,11 @@ export class FreeForm extends Editor2DConfig{
   tmpLine;
   cuurentPoint;
   zoomHandler: any;
+
+  constructor(paper) {
+    super();
+    this.paper = paper;
+  }
 
   isClosedPolyLoop(lastPoint) {
     if (!this.startingPoint || this.circle.length < 3) return false;
@@ -45,32 +52,21 @@ export class FreeForm extends Editor2DConfig{
       else
         this.freeFormPath += `L ${point.x},${point.y} `
 
-      if (this.tmpLine){
+      if (this.tmpLine) {
         this.zoomHandler.destroyPanZoom();
-        this.tmpLine.remove();        
+        this.tmpLine.remove();
       }
       this.tmpLine = paper.path(this.freeFormPath);
       this.zoomHandler.bindZoomHandler();
     }
     else {
-      if (this.tmpLine){
+      if (this.tmpLine) {
         this.zoomHandler.destroyPanZoom();
         this.tmpLine.remove();
       }
       this.tmpLine = paper.path(this.freeFormPath + `L ${point.x},${point.y} `);
       this.zoomHandler.bindZoomHandler();
     }
-  }
-
-  snapInitPoint(point, gridSize, ratio): any {
-    console.log(point, gridSize, ratio, "point,gridSize, ratio")
-    var gridSizeInPX = gridSize * ratio;
-    let p = Math.floor(point / gridSizeInPX) * gridSizeInPX;
-    let deviation = point % (gridSizeInPX);
-    if (deviation > gridSizeInPX / 2)
-      p = p + (gridSizeInPX)
-    console.log(p, "p")
-    return p;
   }
 
   drawCircle(paper, x, y, r) {
@@ -86,22 +82,22 @@ export class FreeForm extends Editor2DConfig{
     });
   }
 
-  drawFreeform(paper, freeFormConfig, containerId, corridorConfig, paperConfig, freeFormDrawInfo) {
+  drawFreeform(containerId,freeFormDrawInfo) {
     this.context = "LINE"
     let mouseDownX = 0;
     let mouseDownY = 0;
     let mouseUpX = 0;
     let mouseUpY: any;
-    let shape: any;    
+    let shape: any;
     var isDrawing = false
     var lastPoint;
 
     $('#' + containerId).unbind('mousedown mousemove mouseup click');
     $('#' + containerId).mousedown((e) => {
       if (this.context === "LINE") {
-        isDrawing = true;        
+        isDrawing = true;
         e.originalEvent.preventDefault();
-        var offset = $("#"+containerId).offset();
+        var offset = $("#" + containerId).offset();
         mouseDownX = e.pageX - offset.left;
         mouseDownY = e.pageY - offset.top;
         lastPoint = { x: mouseDownX, y: mouseDownY };
@@ -118,9 +114,9 @@ export class FreeForm extends Editor2DConfig{
           cuurentPoint = this.snapPointToLine(lastPoint, cuurentPoint);
         var isClosedPath = this.isClosedPolyLoop(cuurentPoint);
         if (isDrawing) {
-          this.buildPath(paper, cuurentPoint, isClosedPath, true);
+          this.buildPath(this.paper, cuurentPoint, isClosedPath, true);
           if (isClosedPath) {
-            this.buildPath(paper, cuurentPoint, isClosedPath, false);
+            this.buildPath(this.paper, cuurentPoint, isClosedPath, false);
           }
           lastPoint = cuurentPoint;
         }
@@ -130,27 +126,27 @@ export class FreeForm extends Editor2DConfig{
     $('#' + containerId).mouseup((e) => {
       if (this.context === "LINE") {
         e.originalEvent.preventDefault();
-        var offset = $("#"+containerId).offset();
-        var yRemainingHeight = paper.height % (corridorConfig.gridSize * paperConfig.data.viewboxRatio);
-        mouseUpX = this.snapInitPoint(e.pageX - offset.left, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
-        mouseUpY = this.snapInitPoint(e.pageY - offset.top, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
-        var pOffset = paperConfig.data.viewboxOffset * paperConfig.data.viewboxRatio;
+        var offset = $("#" + containerId).offset();
+        var yRemainingHeight = this.paper.height % (this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio);
+        mouseUpX = super.snapInitPoint(e.pageX - offset.left, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
+        mouseUpY = super.snapInitPoint(e.pageY - offset.top, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
+        var pOffset = this.paperConfig.data.viewboxOffset * this.paperConfig.data.viewboxRatio;
         this.cuurentPoint = { x: mouseUpX, y: mouseUpY }
         this.freeformPoint.push(this.cuurentPoint);
         this.manupulateFreeformPoints.push({
-          x: this.snapInitPoint((mouseUpX - pOffset) / paperConfig.data.viewboxRatio, corridorConfig.gridSize, freeFormConfig.ratioOne),
-          y: this.snapInitPoint((paper.height - mouseUpY.toFixed(2) - pOffset) / paperConfig.data.viewboxRatio, corridorConfig.gridSize, freeFormConfig.ratioOne)
+          x: super.snapInitPoint((mouseUpX - pOffset) / this.paperConfig.data.viewboxRatio, this.corridorConfig.gridSize, this.freeFormConfig.ratioOne),
+          y: super.snapInitPoint((this.paper.height - mouseUpY.toFixed(2) - pOffset) / this.paperConfig.data.viewboxRatio, this.corridorConfig.gridSize, this.freeFormConfig.ratioOne)
         });
         freeFormDrawInfo.drawPoints = this.manupulateFreeformPoints;
-        freeFormDrawInfo.realPoints = { snapY: mouseUpY, x: e.pageX - offset.left, y: e.pageY - offset.top, yRemainingHeight: yRemainingHeight, ratio: paperConfig.data.viewboxRatio };
-        freeFormDrawInfo.paper = { width: paper.width, height: paper.height }
+        freeFormDrawInfo.realPoints = { snapY: mouseUpY, x: e.pageX - offset.left, y: e.pageY - offset.top, yRemainingHeight: yRemainingHeight, ratio: this.paperConfig.data.viewboxRatio };
+        freeFormDrawInfo.paper = { width: this.paper.width, height: this.paper.height }
         var isClosed = this.isClosedPolyLoop(this.cuurentPoint);
         if (!this.freeFormPath || !isClosed) {
-          shape = this.drawCircle(paper, this.cuurentPoint.x, this.cuurentPoint.y, freeFormConfig.radius);
+          shape = this.drawCircle(this.paper, this.cuurentPoint.x, this.cuurentPoint.y,this.freeFormConfig.radius);
           this.circle.push(shape);
         }
         if (isDrawing) {
-          this.buildPath(paper, this.cuurentPoint, isClosed, false);
+          this.buildPath(this.paper, this.cuurentPoint, isClosed, false);
         }
         if (isClosed) {
           this.context = "NONE"
@@ -167,9 +163,9 @@ export class FreeForm extends Editor2DConfig{
             else
               tempPath += ` L ${this.freeformPoint[i].x},${this.freeformPoint[i].y} `
           }
-          this.tmpLine.attr({ path: tempPath + `Z` });             
+          this.tmpLine.attr({ path: tempPath + `Z` });
         }
-      }      
+      }
     });
     return this.manupulateFreeformPoints;
   }

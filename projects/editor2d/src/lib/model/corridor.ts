@@ -9,22 +9,22 @@ export class Corridor extends Editor2DConfig {
   paper: any;
   shape: any;
   zoomHandler: any;
-  zoom =1;
+  zoom = 1;
   constructor(paper) {
     super();
-    this.paper = paper;    
+    this.paper = paper;
   }
   corridor: CorridorDrawPoints = new CorridorDrawPoints();
 
-  drawShape(corridorConfig, containerId, paper, corridor, paperConfig) {       
-    this.zoomHandler = new ZoomHandler();     
-    var x = corridorConfig.x,
-      y = corridorConfig.y,
-      w = corridorConfig.w,
-      h = corridorConfig.h,
-      g = corridorConfig.g,
+  drawShape(paper,containerId) {
+    this.zoomHandler = new ZoomHandler();
+    var x = this.corridorConfig.x,
+      y = this.corridorConfig.y,
+      w = this.corridorConfig.w,
+      h = this.corridorConfig.h,
+      g = this.corridorConfig.g,
       isCorridorDrawn = false;
-    var topToCenter = corridorConfig.h + corridorConfig.g / 2;
+    var topToCenter = this.corridorConfig.h + this.corridorConfig.g / 2;
     var ft;
     var startPoint, endPoint;
     let mouseDownX;
@@ -34,11 +34,11 @@ export class Corridor extends Editor2DConfig {
     $("#" + containerId).mousedown((e) => {
       console.log('this', this);
       // Prevent text edit cursor while dragging in webkit browsers
-      $("#" + containerId).unbind("mousedown");      
+      $("#" + containerId).unbind("mousedown");
       e.originalEvent.preventDefault();
-      var offset = $("#"+containerId).offset();
-      mouseDownX = this.snapInitPoint(e.pageX - offset.left, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
-      mouseDownY = this.snapInitPoint(e.pageY - offset.top, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
+      var offset = $("#" + containerId).offset();
+      mouseDownX = this.snapInitPoint(e.pageX - offset.left, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
+      mouseDownY = this.snapInitPoint(e.pageY - offset.top, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
       mouseDownY -= topToCenter;
       if (isCorridorDrawn == true) return false; this.corridor
       this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, w, h, g);
@@ -50,10 +50,10 @@ export class Corridor extends Editor2DConfig {
       var zoomPoint;
 
       if (this.shape) {
-        debugger
+        //debugger
         this.shape.remove();
-        ft.unplug();        
-        zoomPoint = this.zoomHandler.isPanZoomAplly? this.zoomHandler.panZoomInstance.getMouseMovePoint(): null;
+        ft.unplug();
+        zoomPoint = this.zoomHandler.isPanZoomAplly ? this.zoomHandler.panZoomInstance.getMouseMovePoint() : null;
         this.zoomHandler.destroyPanZoom();
       } else return false;
       $("#" + containerId)
@@ -63,34 +63,37 @@ export class Corridor extends Editor2DConfig {
         width = this.getDistaanceBetween(mouseDownX, mouseDownY + topToCenter, upX, upY),
         height = upY - mouseDownY,
         angle = this.getAngle(mouseDownX, mouseDownY + topToCenter, upX, upY);
-        width = this.snapInitPoint(width, corridorConfig.gridSize, paperConfig.data.viewboxRatio);
-        var   snapValue = corridorConfig.gridSize * paperConfig.viewboxRatio;
-        this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
-      ft = paper.freeTransform(this.shape,{},this.freeTransformHandler.bind(this));
-      ft.attrs.rotate = angle;           
+      width = this.snapInitPoint(width, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
+      var snapValue = this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio;
+      this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
+      ft = paper.freeTransform(this.shape, {}, this.freeTransformHandler.bind(this));
+      ft.attrs.rotate = angle;
       ft.apply();
       this.zoomHandler.bindZoomHandler();
-      if(zoomPoint){
-        this.zoomHandler.panZoomInstance.zoomAtPointBy(this.zoom,{
-          x: zoomPoint.x+(mouseDownX-zoomPoint.x)/this.zoom,
-          y: zoomPoint.y+(mouseDownY-zoomPoint.y)/this.zoom
+
+      if (zoomPoint) {
+        this.zoomHandler.panZoomInstance.zoomAtPointBy(this.zoom, {
+          x: zoomPoint.x + (mouseDownX - zoomPoint.x) / this.zoom,
+          y: zoomPoint.y + (mouseDownY - zoomPoint.y) / this.zoom
         });
-    
+
         this.zoomHandler.panZoomInstance.panBy({
-          x:mouseDownX-(zoomPoint.x+(mouseDownX-zoomPoint.x)/this.zoom),
-          y:mouseDownY- (zoomPoint.y+(mouseDownY-zoomPoint.y)/this.zoom)
+          x: mouseDownX - (zoomPoint.x + (mouseDownX - zoomPoint.x) / this.zoom),
+          y: mouseDownY - (zoomPoint.y + (mouseDownY - zoomPoint.y) / this.zoom)
         });
-    
-        ft.attrs.translate.x -= mouseDownX-(zoomPoint.x+(mouseDownX-zoomPoint.x)/this.zoom);
-        ft.attrs.translate.y -= 17.5+mouseDownY- (zoomPoint.y+(mouseDownY-zoomPoint.y)/this.zoom);
+
+        ft.attrs.translate.x -= mouseDownX - (zoomPoint.x + (mouseDownX - zoomPoint.x) / this.zoom);
+        ft.attrs.translate.y -= 17.5 + mouseDownY - (zoomPoint.y + (mouseDownY - zoomPoint.y) / this.zoom);
         ft.apply();
       }
+
       $("#" + containerId).click((e) => {
         e.originalEvent.preventDefault();
         $("#" + containerId).unbind("mousemove");
         var BBox = this.shape.getBBox();
         if (BBox.width == 0 && BBox.height == 0) this.shape.remove();
       });
+
     });
     return this.corridor;
   }
@@ -127,21 +130,21 @@ export class Corridor extends Editor2DConfig {
       this.corridor.paper = { width: this.paper.width, height: this.paper.height };
       this.corridor.bbox = this.shape.getBBox();
 
-      if(events[0] == "drag start" || events[0] == "rotate start" || events[0] == "scale start"){
-        if(this.zoomHandler.panZoomInstance){
+      if (events[0] == "drag start" || events[0] == "rotate start" || events[0] == "scale start") {
+        if (this.zoomHandler.panZoomInstance) {
           this.zoomHandler.panZoomInstance.disablePan();
         }
       };
 
       if (events[0] == "drag end" || events[0] == "rotate end" || events[0] == "scale end") {
         var cx = this.snapInitPoint(startPoint.x, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio),
-          cy = this.snapInitPoint(startPoint.y, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);  
-          let snapValue = this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio,
+          cy = this.snapInitPoint(startPoint.y, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
+        let snapValue = this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio,
           distX = startPoint.x - Math.round(startPoint.x / snapValue) * snapValue,
           distY = startPoint.y - Math.round(startPoint.y / snapValue) * snapValue;
 
         ft.attrs.translate.x -= distX;
-        ft.attrs.translate.y -= distY;        
+        ft.attrs.translate.y -= distY;
         ft.apply();
 
         this.corridor.sp = {
@@ -217,18 +220,7 @@ export class Corridor extends Editor2DConfig {
   }
 
   snapPoint(point, gridSize, ratio) {
-    return this.snapInitPoint(point, gridSize, ratio);
-  }
-
-  snapInitPoint(point, gridSize, ratio): any {
-    console.log(point, gridSize, ratio, "point,gridSize, ratio")
-    var gridSizeInPX = gridSize * ratio;
-    let p = Math.floor(point / gridSizeInPX) * gridSizeInPX;
-    let deviation = point % (gridSizeInPX);
-    if (deviation > gridSizeInPX / 2)
-      p = p + (gridSizeInPX)    
-      console.log(p, "p")
-      return p;
+    return super.snapInitPoint(point, gridSize, ratio);
   }
 
   getPoint(obj) {
@@ -236,10 +228,10 @@ export class Corridor extends Editor2DConfig {
   }
 
   getUpdateCorridorPath(paper, x, y, w, h, g) {
-    var path = `M ${x},${y}  L ${x+w},${y} L ${x+w},${y+h} L ${x},${y+h} L ${x}, ${y} z` +
-        `M ${x},${y+h+g}  L ${x+w},${y+h+g} L ${x+w},${2*h+y+g} L ${x},${2*h+y+g} L ${x},${y+h+g} z`
-     
-    return path;                
+    var path = `M ${x},${y}  L ${x + w},${y} L ${x + w},${y + h} L ${x},${y + h} L ${x}, ${y} z` +
+      `M ${x},${y + h + g}  L ${x + w},${y + h + g} L ${x + w},${2 * h + y + g} L ${x},${2 * h + y + g} L ${x},${y + h + g} z`
+
+    return path;
   }
 }
 

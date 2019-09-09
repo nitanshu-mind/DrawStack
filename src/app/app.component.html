@@ -1,6 +1,11 @@
-<lib-editor2d [shapeType]="shapeType" [userConfig]="userConfig" (output)="dataEmit($event)" [svgUrl]="svgUrl"></lib-editor2d>
-<input type="button" value="Draw Corridor" (click)=enableCorridorDrawing()/>
-<input type="button" value="Draw Line" (click)=enableLineDrawing() />
-<input type="button" value="Generate Svg Url" (click)=sendSvgUrl() />
+<div class="row" style="height: 400px; width: 600px;">
+  <lib-editor2d [shapeType]="shapeType" [userConfig]="userConfig" (output)="dataEmit($event)" [svgUrl]="svgUrl">
+  </lib-editor2d>
+</div>
+<div class="row">
+  <button type="button" value="Draw Corridor" (click)="enableCorridorDrawing()">Draw Corridor</button>
+  <button type="button" value="Draw Line" (click)="enableLineDrawing()">Draw Line</button>
+  <button type="button" value="Generate Svg Url" (click)="sendSvgUrl()">Generate Svg Url</button>
+</div>
 
 Raw Data: {{updatedData|json}}
