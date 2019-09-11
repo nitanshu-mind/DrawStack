@@ -24,6 +24,9 @@ export class Corridor extends Editor2DConfig {
   selectedPolicy = "parallelPercentage";
   STRAIRS_WIDTH=13; //Feet
   STRAIR_PLACEMENT_GAP=150;
+  STAIRS = {
+    w: 13
+  }
   typesAndPercentage = [
     {
       "type": { w: 15, color: '#228B22' },
@@ -41,7 +44,7 @@ export class Corridor extends Editor2DConfig {
     {
       "type": { w: 40, color: '#FFFF99' },
       "percentage": 40
-    }
+    },
   ];
   constructor(paper) {
     super();
@@ -155,7 +158,7 @@ export class Corridor extends Editor2DConfig {
 
     this.lastColumn = column;
     if (events[1] == "scale end" || events[0] == "drag end") {
-      this.applyLayoutPolicy(this.typesAndPercentage, { x: this.cx, y: this.cy }, w, this.angle, this.shapesHolder);
+      this.applyMixedPercentageLayoutPolicy(this.typesAndPercentage, { x: this.cx, y: this.cy }, w, this.angle, this.shapesHolder);
     }
 
 
@@ -437,6 +440,48 @@ export class Corridor extends Editor2DConfig {
 
     this.transformAllToAlign();
   }
+
+ applyMixedPercentageLayoutPolicy(typesAndPercentage,point,w,angle,shapesHolder){
+    this.removeAllShape(shapesHolder);
+    let stairsPlacementX=this.STRAIR_PLACEMENT_GAP;
+    let pRatio= Math.floor(w/100);
+    let topSP=this.getPoint(point.x,point.y,35,-90+angle);
+    let bottomSP=this.getPoint(point.x,point.y,5,90+angle);
+    let lr=0;
+    let randomlyOrderedBuilding=[];
+    for (let property in typesAndPercentage) {
+        let type=typesAndPercentage[property].type;
+        let percentage=typesAndPercentage[property].percentage;
+        let r=0;
+        for( ;r<percentage*pRatio && lr+r+type.w<w;r+=type.w){
+         if(lr+r>stairsPlacementX){
+            lr+= this.STAIRS.w;
+            stairsPlacementX=lr+r+this.STRAIR_PLACEMENT_GAP;
+          }
+         randomlyOrderedBuilding.push(type);
+        }
+        lr+=r;
+    }
+    this.shuffleRandomly(randomlyOrderedBuilding);
+    stairsPlacementX=this.STRAIR_PLACEMENT_GAP;
+    for(let i=0,r=0;i<randomlyOrderedBuilding.length;i++){
+        if(r>stairsPlacementX){
+            r+= this.STAIRS.w;
+            stairsPlacementX=r+this.STRAIR_PLACEMENT_GAP;
+        }
+        this.create(shapesHolder,topSP,bottomSP, this.h, this.g, angle,randomlyOrderedBuilding[i],i+1,r);
+        r+=randomlyOrderedBuilding[i].w;        
+    }
+    this.transformAllToAlign();
+}
+
+shuffleRandomly(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+      let j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
   create(shapesHolder, topSP, bottomSP, h, g, angle, type, column, d) {
     this.createColumn(shapesHolder, topSP, bottomSP, h, g, angle, type, column, d)
   };
