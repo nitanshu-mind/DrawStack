@@ -40,8 +40,7 @@ export class Plotting {
     constructor(paper) {
         this.paper = paper;
     }
-    applyPlotting(ft, events) {
-        // debugger
+    applyPlotting(ft, events) {        
         this.angle = ft.attrs.rotate;
         this.cx = ft.handles.y.disc.attrs.cx;
         this.cy = ft.handles.y.disc.attrs.cy;
@@ -66,21 +65,19 @@ export class Plotting {
             this.applyMixedPercentageLayoutPolicy(this.typesAndPercentage, { x: this.cx, y: this.cy }, w, this.angle, this.shapesHolder);
         }
     }
+
     getPoint(cx, cy, r, angle) {
         return { x: cx + this.getX(r, angle), y: cy + this.getY(r, angle) };
     }
+
     distanceBetween(x1, y1, x2, y2) {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
-    // mouseMove(e){
-    //     document.getElementById("xy").innerHTML="x="+e.pageX+"   y="+e.pageY+" angle"+angle
-    // }
-    // getAngle(x,y,x1,y1){
-    //    return Math.atan2(y - y1, x - x1) * 180 / Math.PI;
-    // }
+    
     getX(r, angle) {
         return r * Math.cos(angle * (Math.PI / 180));
     }
+
     getY(r, angle) {
         return r * Math.sin(angle * (Math.PI / 180));
     }
@@ -118,8 +115,7 @@ export class Plotting {
             return;
         let topSP = this.getPoint(this.cx, this.cy, (this.h + this.g), 270 + this.angle);
         let bottomSP = this.getPoint(this.cx, this.cy, 5, 90 + this.angle);
-        // adding  if any column is missing
-        // Object.keys(shapesHolder).length
+        // adding  if any column is missing    
         for (let i = 1; i <= column; i++) {
             if (!this.shapesHolder[i])
                 this.createAndColumn(i, topSP, bottomSP);
@@ -140,7 +136,6 @@ export class Plotting {
         }
     }
 
-
     removeLastShape(index) {
         this.removeShape(index);
         // This need to be used if user is moving the mouse fastly
@@ -153,8 +148,7 @@ export class Plotting {
 
     transformToAlign(columnNode, point) {
         let shape = columnNode.shape;
-        let p = this.getPoint(point.x, point.y, columnNode.d, this.angle);
-        //shape.transform(`r${angle}`);
+        let p = this.getPoint(point.x, point.y, columnNode.d, this.angle);     
         let ts = `t${p.x - shape.attrs.x},${((p.y - shape.attrs.y))} r${this.angle},${shape.attrs.x},${shape.attrs.y}`;
         shape.transform(ts);
     }
@@ -172,28 +166,41 @@ export class Plotting {
         }
     }
 
+    shuffleRandomly(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    create(shapesHolder, topSP, bottomSP, h, g, angle, type, column, d) {
+        this.createColumn(shapesHolder, topSP, bottomSP, h, g, angle, type, column, d)
+    };
+
+    createColumn(shapesHolder, topSP, bottomSP, h, g, angle, type, column, d) {
+        shapesHolder[column] = {
+            "type": "building",
+            "top": { shape: this.createBuilding(topSP.x, topSP.y, column, type, h), d: d },
+            "bottom": { shape: this.createBuilding(bottomSP.x, bottomSP.y, column, type, h), d: d }
+        };
+    };
+
+    createBuilding(x, y, index, type, h) {
+        return this.paper.rect(x, y, type.w, h).attr({ 'fill': type.color, 'stroke-width': 2 });
+    };
+
     applyLayoutPolicy(typesAndPercentage, point, w, angle, shapesHolder) {
         this.removeAllShape(shapesHolder);
-
         let stairsPlacementX = this.STRAIR_PLACEMENT_GAP;
-
         let pRatio = Math.floor(w / 100); // pixel ratio
-
         let column = 1;
-
         let topSP = this.getPoint(point.x, point.y, (this.h + this.g), -90 + angle);
-
         let bottomSP = this.getPoint(point.x, point.y, 5, 90 + angle);
-
         let lr = 0; //last r  or last created distance        
         for (let property in typesAndPercentage) {
-
             let type = typesAndPercentage[property].type;
-
             let percentage = typesAndPercentage[property].percentage;
-
             let r = 0;// Radius 
-
             for (; r < percentage * pRatio && lr + r + type.w < w; r += type.w) {
                 if (lr + r > stairsPlacementX) {
                     lr += this.STRAIRS_WIDTH;
@@ -240,28 +247,5 @@ export class Plotting {
             r += randomlyOrderedBuilding[i].w;
         }
         this.transformAllToAlign();
-    }
-
-    shuffleRandomly(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            let j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    }
-
-    create(shapesHolder, topSP, bottomSP, h, g, angle, type, column, d) {
-        this.createColumn(shapesHolder, topSP, bottomSP, h, g, angle, type, column, d)
-    };
-
-    createColumn(shapesHolder, topSP, bottomSP, h, g, angle, type, column, d) {
-        shapesHolder[column] = {
-            "type": "building",
-            "top": { shape: this.createBuilding(topSP.x, topSP.y, column, type, h), d: d },
-            "bottom": { shape: this.createBuilding(bottomSP.x, bottomSP.y, column, type, h), d: d }
-        };
-    };
-
-    createBuilding(x, y, index, type, h) {
-        return this.paper.rect(x, y, type.w, h).attr({ 'fill': type.color, 'stroke-width': .1 });
-    };
+    }    
 }
