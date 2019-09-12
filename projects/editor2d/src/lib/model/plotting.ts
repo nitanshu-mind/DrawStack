@@ -49,7 +49,7 @@ export class Plotting {
         this.cx1 = this.cx1 - this.cx1 % this.dsw;
         let w = this.distanceBetween(this.cx, this.cy, this.cx1, this.cy1);
         let column = ((w - w % this.dsw) / this.dsw) - 1;
-
+        
         // Case 1: Add Shape and transform if does ot exist
         if (column !== this.lastColumn && !this.shapesHolder[column] && column > Object.keys(this.shapesHolder).length + 1) {
             this.addColumn(column);
@@ -63,7 +63,7 @@ export class Plotting {
         this.lastColumn = column;
         if (events[1] == "scale end" || events[0] == "drag end") {
             this.applyMixedPercentageLayoutPolicy(this.typesAndPercentage, { x: this.cx, y: this.cy }, w, this.angle, this.shapesHolder);
-        }
+        }    
     }
 
     getPoint(cx, cy, r, angle) {
@@ -188,6 +188,14 @@ export class Plotting {
     createBuilding(x, y, index, type, h) {
         return this.paper.rect(x, y, type.w, h).attr({ 'fill': type.color, 'stroke-width': 2 });
     };
+
+    recreateShapes(w){
+        this.removeAllShape(this.shapesHolder);
+        for(let i=0,column=1;i<w;i+=this.dsw,column++) {
+            this.addColumn(column);
+            this.transformColumnToAlign(this.shapesHolder[column]);
+        }
+    }
 
     applyLayoutPolicy(typesAndPercentage, point, w, angle, shapesHolder) {
         this.removeAllShape(shapesHolder);

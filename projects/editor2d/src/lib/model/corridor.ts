@@ -60,7 +60,10 @@ export class Corridor extends Editor2DConfig {
         ft.unplug();
         zoomPoint = this.zoomHandler.isPanZoomAplly ? this.zoomHandler.panZoomInstance.getMouseMovePoint() : null;
         this.zoomHandler.destroyPanZoom();
-      } else return false;
+      }
+       else
+        return false;
+
       $("#" + containerId)
       var offset = $("#" + containerId).offset(),
         upX = e.pageX - offset.left,
@@ -71,6 +74,7 @@ export class Corridor extends Editor2DConfig {
       width = this.snapInitPoint(width, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
       var snapValue = this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio;
       this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
+      this.plotting.recreateShapes(width);      
       ft = paper.freeTransform(this.shape, {}, this.freeTransformHandler.bind(this));
       ft.attrs.rotate = angleInner;
       ft.apply();
@@ -105,10 +109,7 @@ export class Corridor extends Editor2DConfig {
 
   freeTransformHandler(ft, events) {
     // Implementation of Colouring buildings
-    // debugger
     this.plotting.applyPlotting(ft, events)
-
-    // Already working
     let handles = ft.handles;
     let startPoint;
     let endPoint;
@@ -233,19 +234,12 @@ export class Corridor extends Editor2DConfig {
     return super.snapInitPoint(point, gridSize, ratio);
   }
 
-  // getPoint(obj) {
-  //   return { x: obj.attrs.cx, y: obj.attrs.cy }
-  // }
-
   getUpdateCorridorPath(paper, x, y, w, h, g) {
     var path = `M ${x},${y}  L ${x + w},${y} L ${x + w},${y + h} L ${x},${y + h} L ${x}, ${y} z` +
       `M ${x},${y + h + g}  L ${x + w},${y + h + g} L ${x + w},${2 * h + y + g} L ${x},${2 * h + y + g} L ${x},${y + h + g} z`
 
     return path;
   }
-
-  //=========== New functions for dynamic building block =================
-  
 }
 
 
