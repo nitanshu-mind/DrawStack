@@ -75,7 +75,7 @@ export class Plotting {
         this.removeAllShape(this.shapesHolder);
         for (let i = 0, column = 1; i < w; i += this.dsw, column++) {
             this.addColumn(column);
-            this.transformColumnToAlign(this.shapesHolder[column],this.zoomHandler.panZoomInstance.getZoom());
+            this.transformColumnToAlign(this.shapesHolder[column]);
         }
     }
     getPoint(cx, cy, r, angle) {
