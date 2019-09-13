@@ -1,3 +1,6 @@
+import { ZoomHandler } from './zoomHandler';
+import $ from "jquery";
+
 export class Plotting {
     paper;
     shapesHolder = {};
@@ -10,6 +13,7 @@ export class Plotting {
     cy;
     cx1;
     cy1;
+    zoomHandler;
 
     selectedPolicy = "parallelPercentage";
 
@@ -40,7 +44,7 @@ export class Plotting {
     constructor(paper) {
         this.paper = paper;
     }
-    applyPlotting(ft, events) {        
+    applyPlotting(ft, events) {
         this.angle = ft.attrs.rotate;
         this.cx = ft.handles.y.disc.attrs.cx;
         this.cy = ft.handles.y.disc.attrs.cy;
@@ -49,7 +53,8 @@ export class Plotting {
         this.cx1 = this.cx1 - this.cx1 % this.dsw;
         let w = this.distanceBetween(this.cx, this.cy, this.cx1, this.cy1);
         let column = ((w - w % this.dsw) / this.dsw) - 1;
-        
+        this.zoomHandler = new ZoomHandler();
+
         // Case 1: Add Shape and transform if does ot exist
         if (column !== this.lastColumn && !this.shapesHolder[column] && column > Object.keys(this.shapesHolder).length + 1) {
             this.addColumn(column);
@@ -58,14 +63,21 @@ export class Plotting {
         else if (column < Object.keys(this.shapesHolder).length + 1 && this.lastColumn != column) {
             this.removeLastShape(column + 1);
         } else // Case 3: just changing the angle
-            this.transformAllToAlign();
+        this.transformAllToAlign();
 
         this.lastColumn = column;
-        if (events[1] == "scale end" || events[0] == "drag end") {
+        if (events[0] == "scale end" || events[0] == "drag end") {
             this.applyMixedPercentageLayoutPolicy(this.typesAndPercentage, { x: this.cx, y: this.cy }, w, this.angle, this.shapesHolder);
-        }    
+        }
     }
 
+    recreateShapes(w) {
+        this.removeAllShape(this.shapesHolder);
+        for (let i = 0, column = 1; i < w; i += this.dsw, column++) {
+            this.addColumn(column);
+            this.transformColumnToAlign(this.shapesHolder[column],this.zoomHandler.panZoomInstance.getZoom());
+        }
+    }
     getPoint(cx, cy, r, angle) {
         return { x: cx + this.getX(r, angle), y: cy + this.getY(r, angle) };
     }
@@ -73,7 +85,7 @@ export class Plotting {
     distanceBetween(x1, y1, x2, y2) {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
-    
+
     getX(r, angle) {
         return r * Math.cos(angle * (Math.PI / 180));
     }
@@ -148,7 +160,7 @@ export class Plotting {
 
     transformToAlign(columnNode, point) {
         let shape = columnNode.shape;
-        let p = this.getPoint(point.x, point.y, columnNode.d, this.angle);     
+        let p = this.getPoint(point.x, point.y, columnNode.d, this.angle);
         let ts = `t${p.x - shape.attrs.x},${((p.y - shape.attrs.y))} r${this.angle},${shape.attrs.x},${shape.attrs.y}`;
         shape.transform(ts);
     }
@@ -188,14 +200,6 @@ export class Plotting {
     createBuilding(x, y, index, type, h) {
         return this.paper.rect(x, y, type.w, h).attr({ 'fill': type.color, 'stroke-width': 2 });
     };
-
-    recreateShapes(w){
-        this.removeAllShape(this.shapesHolder);
-        for(let i=0,column=1;i<w;i+=this.dsw,column++) {
-            this.addColumn(column);
-            this.transformColumnToAlign(this.shapesHolder[column]);
-        }
-    }
 
     applyLayoutPolicy(typesAndPercentage, point, w, angle, shapesHolder) {
         this.removeAllShape(shapesHolder);
@@ -255,5 +259,5 @@ export class Plotting {
             r += randomlyOrderedBuilding[i].w;
         }
         this.transformAllToAlign();
-    }    
+    }
 }

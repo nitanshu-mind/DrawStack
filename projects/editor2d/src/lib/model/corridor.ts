@@ -74,7 +74,7 @@ export class Corridor extends Editor2DConfig {
       width = this.snapInitPoint(width, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
       var snapValue = this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio;
       this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
-      this.plotting.recreateShapes(width);      
+      // this.plotting.recreateShapes(width);      
       ft = paper.freeTransform(this.shape, {}, this.freeTransformHandler.bind(this));
       ft.attrs.rotate = angleInner;
       ft.apply();
@@ -167,7 +167,7 @@ export class Corridor extends Editor2DConfig {
           x: endPoint.x.toFixed(2),
           y: (this.paper.height - endPoint.y).toFixed(2),
           z: 0
-        };
+        };      
         this.zoomHandler.panZoomInstance.enablePan();
       }
     }

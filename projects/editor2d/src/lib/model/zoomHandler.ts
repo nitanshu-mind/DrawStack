@@ -34,7 +34,7 @@ export class ZoomHandler {
         this.isPanZoomAplly = true;
         this.zoomRatio = newZoom;
         var ele = $('.svg-pan-zoom_viewport')[0];
-        this.viewportMatrix = ele.transform.baseVal.consolidate().matrix;        
+        this.viewportMatrix = ele.transform.baseVal.consolidate().matrix;
         var viewboxSizes = this.panZoomInstance.getSizes();
         this.clearLabels(newZoom);
         var mouseMovepoint = this.panZoomInstance.getMouseMovePoint();
@@ -42,6 +42,10 @@ export class ZoomHandler {
         this.zoomBottomPaper = { x: mouseMovepoint.x, y: 0 };
         this.panAndZoomRullerLeftPaper.zoomAtPoint(newZoom, this.zoomLeftPaper);
         this.panAndZoomRullerBottomPaper.zoomAtPoint(newZoom, this.zoomBottomPaper);
+        let rectElems = document.getElementsByTagName("rect");
+        for (let i = 0; i < rectElems.length; i++) {
+          ele.append(rectElems[i])
+        }
       },
       onPan: (newPan) => {
         this.panLeftPaper = { x: 0, y: newPan.y };
@@ -67,7 +71,7 @@ export class ZoomHandler {
       fit: false,
       center: false,
       dblClickZoomEnabled: false
-    });    
+    });
   }
 
   destroyPanZoom() {
