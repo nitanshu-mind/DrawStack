@@ -42,10 +42,7 @@ export class ZoomHandler {
         this.zoomBottomPaper = { x: mouseMovepoint.x, y: 0 };
         this.panAndZoomRullerLeftPaper.zoomAtPoint(newZoom, this.zoomLeftPaper);
         this.panAndZoomRullerBottomPaper.zoomAtPoint(newZoom, this.zoomBottomPaper);
-        let rectElems = document.getElementsByTagName("rect");
-        for (let i = 0; i < rectElems.length; i++) {
-          ele.append(rectElems[i])
-        }
+        this.applyZoomOnPlotting();
       },
       onPan: (newPan) => {
         this.panLeftPaper = { x: 0, y: newPan.y };
@@ -72,6 +69,13 @@ export class ZoomHandler {
       center: false,
       dblClickZoomEnabled: false
     });
+  }
+  applyZoomOnPlotting(){
+    var ele = $('.svg-pan-zoom_viewport')[0];
+    let rectElems = document.getElementsByTagName("rect");
+    for (let i = 0; i < rectElems.length; i++) {
+      ele.append(rectElems[i])
+    }
   }
 
   destroyPanZoom() {

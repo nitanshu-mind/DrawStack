@@ -153,10 +153,11 @@ export class Corridor extends Editor2DConfig {
         let snapValue = this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio,
           distX = startPoint.x - Math.round(startPoint.x / snapValue) * snapValue,
           distY = startPoint.y - Math.round(startPoint.y / snapValue) * snapValue;
-
+// debugger
         ft.attrs.translate.x -= distX;
-        ft.attrs.translate.y -= distY;
+        ft.attrs.translate.y -= distY;      
         ft.apply();
+        this.zoomHandler.applyZoomOnPlotting();
 
         this.corridor.sp = {
           x: this.snapInitPoint(cx, this.corridorConfig.gridSize, 1),
