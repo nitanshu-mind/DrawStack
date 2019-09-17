@@ -12,7 +12,8 @@ export class Corridor extends Editor2DConfig {
   zoomHandler: any;
   zoom = 1;
   plotting: any;
-
+  ftLastEvent:any;
+ 
   constructor(paper) {
     super();
     this.paper = paper;
@@ -36,12 +37,17 @@ export class Corridor extends Editor2DConfig {
     let mouseDownY;
     $("#" + containerId).unbind("mousedown mousemove mouseup");
     // mousedown event
+    $("#" + containerId).mouseup((e) => {
+      this.plotting.applyPlotting(ft, this.ftLastEvent, false) 
+    });
+
     $("#" + containerId).mousedown((e) => {
       console.log('this', this);
       // Prevent text edit cursor while dragging in webkit browsers
       $("#" + containerId).unbind("mousedown");
       e.originalEvent.preventDefault();
       var offset = $("#" + containerId).offset();
+      this.zoomHandler.applyZoomOnPlotting();
       mouseDownX = this.snapInitPoint(e.pageX - offset.left, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
       mouseDownY = this.snapInitPoint(e.pageY - offset.top, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
       mouseDownY -= topToCenter;
@@ -56,8 +62,8 @@ export class Corridor extends Editor2DConfig {
 
       if (this.shape) {
         //debugger
-        this.shape.remove();
-        ft.unplug();
+      //  this.shape.remove();
+       // ft.unplug();
         zoomPoint = this.zoomHandler.isPanZoomAplly ? this.zoomHandler.panZoomInstance.getMouseMovePoint() : null;
         this.zoomHandler.destroyPanZoom();
       }
@@ -73,9 +79,11 @@ export class Corridor extends Editor2DConfig {
         angleInner = this.getAngle(mouseDownX, mouseDownY + topToCenter, upX, upY);
       width = this.snapInitPoint(width, this.corridorConfig.gridSize, this.paperConfig.data.viewboxRatio);
       var snapValue = this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio;
-      this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
+      //this.shape = this.drawCorridor(paper, mouseDownX, mouseDownY, width, h, g);
       // this.plotting.recreateShapes(width);      
-      ft = paper.freeTransform(this.shape, {}, this.freeTransformHandler.bind(this));
+      //ft = paper.freeTransform(this.shape, {}, this.freeTransformHandler.bind(this));
+      
+      ft.attrs.scale.x= width/w;
       ft.attrs.rotate = angleInner;
       ft.apply();
       this.zoomHandler.bindZoomHandler();
@@ -109,7 +117,8 @@ export class Corridor extends Editor2DConfig {
 
   freeTransformHandler(ft, events) {
     // Implementation of Colouring buildings
-    this.plotting.applyPlotting(ft, events)
+    this.plotting.applyPlotting(ft, events, true)
+    this.ftLastEvent =events;
     let handles = ft.handles;
     let startPoint;
     let endPoint;
@@ -140,7 +149,6 @@ export class Corridor extends Editor2DConfig {
       };
       this.corridor.paper = { width: this.paper.width, height: this.paper.height };
       this.corridor.bbox = this.shape.getBBox();
-
       if (events[0] == "drag start" || events[0] == "rotate start" || events[0] == "scale start") {
         if (this.zoomHandler.panZoomInstance) {
           this.zoomHandler.panZoomInstance.disablePan();
@@ -153,9 +161,8 @@ export class Corridor extends Editor2DConfig {
         let snapValue = this.corridorConfig.gridSize * this.paperConfig.data.viewboxRatio,
           distX = startPoint.x - Math.round(startPoint.x / snapValue) * snapValue,
           distY = startPoint.y - Math.round(startPoint.y / snapValue) * snapValue;
-// debugger
         ft.attrs.translate.x -= distX;
-        ft.attrs.translate.y -= distY;      
+        ft.attrs.translate.y -= distY;     
         ft.apply();
         this.zoomHandler.applyZoomOnPlotting();
 
@@ -170,7 +177,7 @@ export class Corridor extends Editor2DConfig {
           z: 0
         };      
         this.zoomHandler.panZoomInstance.enablePan();
-      }
+      }      
     }
   };
 

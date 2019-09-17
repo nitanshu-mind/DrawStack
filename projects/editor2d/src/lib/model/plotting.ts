@@ -41,10 +41,12 @@ export class Plotting {
     STAIRS = {
         w: 13
     }
+
     constructor(paper) {
         this.paper = paper;
     }
-    applyPlotting(ft, events) {
+    applyPlotting(ft, events, isPlaceholder) {
+
         this.angle = ft.attrs.rotate;
         this.cx = ft.handles.y.disc.attrs.cx;
         this.cy = ft.handles.y.disc.attrs.cy;
@@ -66,9 +68,10 @@ export class Plotting {
         this.transformAllToAlign();
 
         this.lastColumn = column;
-        if (events[0] == "scale end" || events[0] == "drag end") {
-            this.applyMixedPercentageLayoutPolicy(this.typesAndPercentage, { x: this.cx, y: this.cy }, w, this.angle, this.shapesHolder);
-        }
+       if (!isPlaceholder && events[0] == "apply") {
+        //    debugger
+           this.applyMixedPercentageLayoutPolicy(this.typesAndPercentage, { x: this.cx, y: this.cy }, w, this.angle, this.shapesHolder);
+       }
     }
 
     recreateShapes(w) {
@@ -248,7 +251,7 @@ export class Plotting {
             }
             lr += r;
         }
-        this.shuffleRandomly(randomlyOrderedBuilding);
+        // this.shuffleRandomly(randomlyOrderedBuilding);
         stairsPlacementX = this.STRAIR_PLACEMENT_GAP;
         for (let i = 0, r = 0; i < randomlyOrderedBuilding.length; i++) {
             if (r > stairsPlacementX) {

@@ -44,11 +44,12 @@ export class ZoomHandler {
         this.panAndZoomRullerBottomPaper.zoomAtPoint(newZoom, this.zoomBottomPaper);
         this.applyZoomOnPlotting();
       },
-      onPan: (newPan) => {
+      onPan: (newPan) => {        
         this.panLeftPaper = { x: 0, y: newPan.y };
         this.panBottomPaper = { x: newPan.x, y: 0 };
         this.panAndZoomRullerLeftPaper.pan(this.panLeftPaper);
         this.panAndZoomRullerBottomPaper.pan(this.panBottomPaper)
+        this.applyZoomOnPlotting();
       }
     });
 
