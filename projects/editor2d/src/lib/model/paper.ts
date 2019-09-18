@@ -1,4 +1,6 @@
 import { Editor2DConfig } from '../editor2d.config';
+import { ZoomHandler } from './zoomHandler';
+
 declare const loadSVGCorridor: any;
 
 export class Paper extends Editor2DConfig {
@@ -7,10 +9,12 @@ export class Paper extends Editor2DConfig {
   tranformY = 5;
   xAxisText: any;
   yAxisText: any;
-  rullerLeft = document.getElementById('ruller_left');
-  rullerBottom = document.getElementById('ruller_bottom');
+  //rullerLeft = document.getElementById('ruller_left');
+  //rullerBottom = document.getElementById('ruller_bottom');
   rullerLeftPaper: any;
   rullerBottomPaper: any;
+  zoovtoandler: ZoomHandler;
+  zoomPoint: any;
 
   constructor(paper, rullerLeftPaper, rullerBottomPaper) {
     super();
@@ -19,50 +23,61 @@ export class Paper extends Editor2DConfig {
     this.rullerBottomPaper = rullerBottomPaper;
   }
 
-  public drawAxis(paper, rullerLeftPaper, rullerBottomPaper, isDrawGrid) {
-    let paperWidth = paper.width,
-      paperHeight = paper.height,
-      paperCenterOfX = this.paperConfig.containerWidth / 2,
-      paperCenterOfY = this.paperConfig.containerHeight / 2;
-
-    this.drawXAxis(paper, rullerLeftPaper, rullerBottomPaper, isDrawGrid)
-    this.drawYAxis(paper, paperWidth, paperHeight, paperCenterOfX, rullerLeftPaper, rullerBottomPaper, isDrawGrid);
+  public drawAxis(paper, isDrawGrid) {
+    this.drawXAxis(paper, this.rullerLeftPaper, this.rullerBottomPaper, isDrawGrid);
+    this.drawYAxis(paper, this.rullerLeftPaper, this.rullerBottomPaper, isDrawGrid);
   }
 
   //
-  private drawXAxis(paper, rullerLeftPaper, rullerBottomPaper, isDrawGrid, ) {
-    for (var i = this.paperConfig.gridGap * this.paperConfig.ratio * -30, j = -33; i <= this.paperConfig.containerWidth; i += (this.paperConfig.gridGap * this.paperConfig.ratio), j++) {
-      if (j % 5 == 0) {
-        if (isDrawGrid) {
-          paper.path("M" + i + ",0L" + i + "," + (this.paperConfig.drawableHeight * this.paperConfig.ratio)).attr({ "stroke": "#696969", "stroke-width": 0.50 });
-          this.xAxisText = rullerBottomPaper.text(i, 0, j * this.paperConfig.gridGap).attr({ "fill": "blue", "font-size": 10 });
-        }
+  private drawXAxis(paper, rullerLeftPaper, rullerBottomPaper, isDrawGrid) {
+    let ratio = this.paperConfig.ratio;
+    let vpw = this.paperConfig.viewPortConfig.widthConfig.vpw,
+      mw = this.paperConfig.viewPortConfig.widthConfig.vlo,
+      pw = this.paperConfig.viewPortConfig.widthConfig.vro;
+
+    let vph = this.paperConfig.viewPortConfig.heightConfig.vph,
+      vto = this.paperConfig.viewPortConfig.heightConfig.vto,
+      ph = this.paperConfig.viewPortConfig.heightConfig.vbo,pth;
+
+    for (var i = ratio * mw, j = mw; i < (pw + vpw) * ratio; i += ratio * this.paperConfig.gridGap, j += this.paperConfig.gridGap) {
+      if (j % 50 == 0) {
+        pth=paper.path(`M${i},${vto * ratio}L${i},${((ph + vph) * ratio)}`).attr({ "stroke": "#696969", "stroke-width": 0.50 });
+        this.paperConfig.xBoldPaths.push(pth);
+        pth.attr({ "stroke-width":   0.5});
+        this.xAxisText = rullerBottomPaper.text(i, 0, j).attr({ "fill": "blue", "font-size": 10 });
         this.xAxisText.transform('t0,' + this.tranformY);
         this.paperConfig.xLabels.push(this.xAxisText);
-      }
-      else {
-        if (isDrawGrid) {
-          paper.path("M" + i + ",0L" + i + "," + (this.paperConfig.drawableHeight * this.paperConfig.ratio)).attr({ "stroke": "#696969", "stroke-width": 0.25 });
-        }
+      } else
+      {
+        pth=paper.path(`M${i},${vto * ratio}L${i},${(ph + vph) * ratio}`).attr({ "stroke": "#696969", "stroke-width": 0.25 });
+        this.paperConfig.xPaths.push(pth);
       }
     }
   }
 
-  private drawYAxis(paper, paperWidth, paperHeight, paperCenterOfX, rullerLeftPaper, rullerBottomPaper, isDrawGrid) {
-    for (var i = (this.paperConfig.gridGap * this.paperConfig.ratio * -30), j = -33; i <= this.paperConfig.containerHeight; i += (this.paperConfig.gridGap * this.paperConfig.ratio), j++) {
-      if (j % 5 == 0) {
-        if (isDrawGrid) {
-          paper.path("M" + (this.paperConfig.gridGap * this.paperConfig.ratio * -30) + "," + (paperHeight - i) + "L" + paperWidth + "," + (paperHeight - i)).attr({ "stroke": "#696969", "stroke-width": 0.50 });
-          this.yAxisText = rullerLeftPaper.text(0, (paperHeight - i), j * this.paperConfig.gridGap).attr({ "fill": "blue", "font-size": 10 });
-        }
+  private drawYAxis(paper, rullerLeftPaper, rullerBottomPaper, isDrawGrid) {
+    let ratio = this.paperConfig.ratio;
+
+    let vpw = this.paperConfig.viewPortConfig.widthConfig.vpw,
+      mw = this.paperConfig.viewPortConfig.widthConfig.vlo,
+      pw = this.paperConfig.viewPortConfig.widthConfig.vro;
+
+    let vph = this.paperConfig.viewPortConfig.heightConfig.vph,
+      vto = this.paperConfig.viewPortConfig.heightConfig.vto,
+      ph = this.paperConfig.viewPortConfig.heightConfig.vbo,path;
+
+    for (var i = ratio * vto, j = vph + ph; i < (ph + vph) * ratio; i += ratio * this.paperConfig.gridGap, j -= this.paperConfig.gridGap) {
+      if (j % 50 == 0) {
+        path=paper.path(`M ${mw * ratio},${i}L${((pw + vpw) * ratio)},${i}`).attr({ "stroke": "#696969", "stroke-width": 0.50 });
+        this.paperConfig.yBoldPaths.push(path);
+        this.yAxisText = rullerLeftPaper.text(0, i, j).attr({ "fill": "blue", "font-size": 10 });
         this.yAxisText.transform('t' + (this.tranformX) + ",0");
         this.paperConfig.yLabels.push(this.yAxisText);
-      }
-      else {
-        if (isDrawGrid) {
-          paper.path("M" + (this.paperConfig.gridGap * this.paperConfig.ratio * -30) + "," + (paperHeight - i) + "L" + paperWidth + "," + (paperHeight - i)).attr({ "stroke": "#696969", "stroke-width": 0.25 });
-        }
-      }
+      } else{
+      path= paper.path(`M${mw * ratio},${i}L${((pw + vpw) * ratio)},${i}`).attr({ "stroke": "#696969", "stroke-width": 0.25 });
+      this.paperConfig.yPaths.push(path);
+    }
+
     }
   }
 
@@ -72,7 +87,7 @@ export class Paper extends Editor2DConfig {
       paper.height - (this.paperConfig.data.height * this.paperConfig.data.viewboxRatio - this.paperConfig.data.viewboxOffset * this.paperConfig.data.viewboxRatio),
       360 * this.paperConfig.data.viewboxRatio,
       240 * this.paperConfig.data.viewboxRatio
-    )
+    );
   }
 
   resetView(paper, rullerLeftPaper, rullerBottomPaper) {
@@ -80,4 +95,6 @@ export class Paper extends Editor2DConfig {
     rullerLeftPaper.clear();
     rullerBottomPaper.clear();
   }
+
+
 }

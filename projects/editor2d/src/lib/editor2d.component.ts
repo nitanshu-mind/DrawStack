@@ -33,15 +33,17 @@ export class Editor2dComponent implements OnInit, OnChanges, AfterViewInit, DoCh
   rullerLeftPaper: any;
   rullerBottomPaper: any;
   zoomHandler: any;
-
-  paperObject: Paper;// = new Paper(this.paper, this.rullerLeftPaper, this.rullerBottomPaper);
-  paperConfigObject: Editor2DConfig;  // = new Editor2DConfig();
-  paperConfig: any; //= this.paperConfigObject.paperConfig;
-  corridorConfig: any;  // = this.paperConfigObject.corridorConfig;
-  freeFormConfig: any;  // = this.paperConfigObject.freeFormConfig;
+  paperConfigObject: Editor2DConfig;
+  paperObject: Paper;
+  paperConfig: any;
   corridorObject: Corridor; // = new Corridor(this.paper);
   freeFormObject: FreeForm;  //= new FreeForm();
   freeFormDrawingInfo: FreeFormDrawingData; // = new FreeFormDrawingData();
+  corridorCordinates: any;
+  oldCorridorCordinates: any = {};
+  oldfreeformCordinates = {};
+  freeformCordinates: any;
+
 
   readonly CONTEXT = {
     corridor: 'corridor',
@@ -52,11 +54,7 @@ export class Editor2dComponent implements OnInit, OnChanges, AfterViewInit, DoCh
 
   private canvasRef: ElementRef;
 
-  messageFromSibling: string;
-  corridorCordinates: any;
-  oldCorridorCordinates: any = {};
-  oldfreeformCordinates = {};
-  freeformCordinates: any;
+
   private get canvas(): HTMLCanvasElement {
     return this.canvasRef.nativeElement;
   }
@@ -65,67 +63,63 @@ export class Editor2dComponent implements OnInit, OnChanges, AfterViewInit, DoCh
     this.oldCorridorCordinates = {};
     this.corridorCordinates = {};
     this.freeformCordinates = {};
-    this.oldCorridorCordinates['myCorridor'] = differs.find(this.corridorCordinates).create();
-    this.oldfreeformCordinates['myFreeform'] = differs.find(this.freeformCordinates).create();
+    this.oldCorridorCordinates['shapeCorridor'] = differs.find(this.corridorCordinates).create();
+    this.oldfreeformCordinates['shapeFreeform'] = differs.find(this.freeformCordinates).create();
   }
 
   ngOnInit() {
-    // if (this.userConfig != null) {
-    //   if (this.userConfig.width) this.paperConfigObject.paperConfig.containerWidth = this.userConfig.width;
-    //   if (this.userConfig.height) this.paperConfigObject.paperConfig.containerHeight = this.userConfig.height;
-    //   if (this.userConfig.gridGap) this.paperConfigObject.paperConfig.containerHeight = this.userConfig.gridGap;
-    // }
+      //console.log(this.userConfig);
   }
 
   ngOnChanges(changes) {
     if (this.shapeType == this.CONTEXT.corridor) {
-      //this.corridorCordinates = this.corridorObject.drawShape(this.corridorConfig,this.canvas.id, this.paper, this.corridorObject, this.paperConfig);
-      this.corridorCordinates = this.corridorObject.drawShape(this.paper,this.canvas.id);
+     this.corridorCordinates = this.corridorObject.drawShape(this.paper,this.canvas.id);
     }
     if (this.shapeType == this.CONTEXT.line) {
-      //this.freeformCordinates = this.freeFormObject.drawFreeform(this.paper, this.freeFormConfig, this.canvas.id, this.corridorConfig, this.paperConfig, this.freeFormDrawingInfo);
-
       this.freeformCordinates = this.freeFormObject.drawFreeform(this.canvas.id, this.freeFormDrawingInfo);
     }
     if (this.svgUrl != undefined && this.paper != undefined) {
       this.paperObject.resetView(this.paper, this.rullerLeftPaper, this.rullerBottomPaper);
       this.shapeType = "";
-      this.paperObject.drawAxis(this.paper,this.rullerLeftPaper, this.rullerBottomPaper,true);
-      //this.paperObject.drawAxis(this.paper, this.paperConfig.gridGap, this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true, this.rullerLeftPaper, this.rullerBottomPaper);
+      this.paperObject.drawAxis(this.paper,true);
       this.paperObject.drawing2DArea(this.paper, this.svgUrl);
     }
   }
 
   ngDoCheck() {
-    var checkDetectionCorridor = this.oldCorridorCordinates['myCorridor'].diff(this.corridorCordinates);
-    var checkDetectionFreeform = this.oldfreeformCordinates['myFreeform'].diff(this.freeformCordinates);
+    var checkDetectionCorridor = this.oldCorridorCordinates['shapeCorridor'].diff(this.corridorCordinates);
+    var checkDetectionFreeform = this.oldfreeformCordinates['shapeFreeform'].diff(this.freeformCordinates);
     if (checkDetectionCorridor != null || checkDetectionFreeform != null) {
       this.output.emit({ freeForm: this.freeformCordinates, corridor: this.corridorCordinates });
     }
   }
 
+  setDrawableSpace(){
+    this.paperConfigObject.drawingProperty.width=this.userConfig.width;
+    this.paperConfigObject.drawingProperty.height=this.userConfig.height;
+  }
+
   ngAfterViewInit(): void {
     this.paperConfigObject = new Editor2DConfig();
+    //this.setDrawableSpace();
     this.paperConfig = this.paperConfigObject.paperConfig;
-    //this.corridorConfig = this.paperConfigObject.corridorConfig;
-    this.freeFormConfig = this.paperConfigObject.freeFormConfig;
     this.initializePaper();
   }
 
   initializePaper() {
-    this.paper = Raphael(this.canvas.id, this.paperConfig.containerWidth, this.paperConfig.containerHeight);
+    //console.log(this.canvas);
+    this.paper = Raphael(this.canvas.id, this.paperConfig.canVasConfig.width, this.paperConfig.canVasConfig.height); // Init Svg Paper
     this.rullerLeft = document.getElementById('ruller_left');
     this.rullerBottom = document.getElementById('ruller_bottom');
     this.rullerLeftPaper = Raphael('ruller_left', this.rullerLeft.containerWidth, this.rullerLeft.containerHeight);
     this.rullerBottomPaper = Raphael('ruller_bottom', this.rullerBottom.containerWidth, this.rullerBottom.containerHeight);
     this.rullerBottomPaper.canvas.id = 'rullerBottomPaper';
     this.rullerLeftPaper.canvas.id = 'rullerLeftPaper';
-    this.paperObject = new Paper(this.paper, this.rullerLeftPaper, this.rullerBottomPaper);
-    //Raphael Object (this.paper,this.paperConfig.gridGap,this.paperConfig.offset, this.paperConfig.ratio, this.paperConfig.containerWidth, this.paperConfig.containerHeight, true, this.rullerLeftPaper, this.rullerBottomPaper, this.paperConfig.drawableHeight, this.paperConfig.drawableWidth
+    this.paperObject = new Paper(this.paper, this.rullerLeftPaper, this.rullerBottomPaper); // Init graph object
 
-    this.paperObject.drawAxis(this.paper,this.rullerLeftPaper, this.rullerBottomPaper,true);
-    this.corridorObject = new Corridor(this.paper);
-    this.freeFormObject = new FreeForm(this.paper);
+    this.paperObject.drawAxis(this.paper,true);  // Plotting graph over paper
+    this.corridorObject = new Corridor(this.paper,this.paperObject.paperConfig);
+    this.freeFormObject = new FreeForm(this.paper,this.paperObject.paperConfig);
     this.freeFormDrawingInfo = new FreeFormDrawingData();
   }
 }

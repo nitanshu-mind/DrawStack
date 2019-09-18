@@ -10,14 +10,15 @@ export class Corridor extends Editor2DConfig {
   shape: any;
   zoomHandler: any;
   zoom = 1;
-  constructor(paper) {
+  constructor(paper,paperConfig) {
     super();
     this.paper = paper;
+    this.paperConfig=paperConfig;
   }
   corridor: CorridorDrawPoints = new CorridorDrawPoints();
 
   drawShape(paper,containerId) {
-    this.zoomHandler = new ZoomHandler();
+    this.zoomHandler = new ZoomHandler(this.paperConfig);
     var x = this.corridorConfig.x,
       y = this.corridorConfig.y,
       w = this.corridorConfig.w,
@@ -105,7 +106,6 @@ export class Corridor extends Editor2DConfig {
     if (handles && handles.y) {
       startPoint = { x: handles.y.disc.attrs.cx, y: handles.y.disc.attrs.cy };
       endPoint = { x: handles.x.disc.attrs.cx, y: handles.x.disc.attrs.cy };
-      console.log(this.paperConfig)
       var snapStartPoint = {
         x: this.snapInitPoint(
           ((startPoint.x - this.paperConfig.data.offset * this.paperConfig.data.viewboxRatio) / this.paperConfig.data.viewboxRatio).toFixed(2),

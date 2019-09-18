@@ -31,7 +31,7 @@ export class AppComponent {
   }
 
   sendSvgUrl(){
-    this.svgUrl = "http://team.d-alchemy.com:9192//Content/assets/files/models/e72a3f62-1700-46c8-87f9-8429f988768a/e72a3f62-1700-46c8-87f9-8429f988768a_637032480569269579.svg"
+    this.svgUrl = "http://172.29.38.153/PegasusAPI/Content/assets/files/models/b10ea613-42c7-4343-950a-e1508b15444c/b10ea613-42c7-4343-950a-e1508b15444c_637038864225431435.svg";
   }
 
 }

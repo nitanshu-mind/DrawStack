@@ -3,23 +3,62 @@ import { FeetToPixel } from './model/feetToPixel';
 export class Editor2DConfig extends FeetToPixel {
   // TODO: Needs to remove unused variables to make it DRY
 
+  // Client Screen Area
+  screenArea = {
+    Width: document.getElementById('svg_paper').clientWidth,
+    Height: document.getElementById('svg_paper').clientHeight
+  };
+
+  // Drawing area
+  drawingProperty = {
+    height: 300, //Passing for ratio calculation
+    width: 420 //Passing for ratio calculation
+  };
+
+  viewPortConfig = {
+    // Drawable axis area width configuration
+    widthConfig: {
+      vpw: 420, // Viewport width
+      vlo: -400, // Viewport Left Offset
+      vro: 380   // Viewport Right Offset
+    },
+    // Drawable axis height configuration
+    heightConfig: {
+      vph: 300, // Viewport height
+      vto: -300, // Viewport top offset
+      vbo: 300   // Viewport bottom offset
+    }
+  };
+
+  ratio = {
+    cr: this.calFeetToPixel(this.drawingProperty.width, this.drawingProperty.height, 30, 'svg_paper')
+  };
+
+  canVasConfig = {
+    width: this.snapInitPoint(this.screenArea.Width, 10, this.ratio.cr),
+    height: this.snapInitPoint(this.screenArea.Height, 10, this.ratio.cr),
+  };
+
   paperConfig = {
+    canVasConfig: this.canVasConfig,  // Canvas size {width,height}
+    viewPortConfig: this.viewPortConfig, // Drawable axis area configuration
     gridGap: 10, // Gap between two Grid lines
-    containerHeight: document.getElementById('svg_paper').clientHeight, // Height of the Paper Area
-    containerWidth: document.getElementById('svg_paper').clientWidth,   // Width of the Paper Area
-    drawableHeight: 300,
-    drawableWidth: 420,
-    ratio: this.calFeetToPixel(420, 300, 30, 'svg_paper'), // Pixel to Feet Ratio
+    //drawable: this.drawingProperty,
+    ratio: this.ratio.cr, //this.calFeetToPixel(this.drawingProperty.width, this.drawingProperty.height, 30, 'svg_paper'), // Pixel to Feet Ratio
     offset: 3, // Paper offset for coordinates(0,0) start point
     xLabels: [], // Labels stored for x Axis
     yLabels: [], // Labels stored for y Axis
+    xPaths:[],
+    yPaths:[],
+    xBoldPaths:[],
+    yBoldPaths:[],
     // ============ Paper Configuration ===========//
     data: {
       offset: 30,
       width: 420,
       height: 300,
       viewboxOffset: 30,
-      viewboxRatio: this.calFeetToPixel(420, 300, 30, 'svg_paper'),
+      viewboxRatio: this.ratio.cr,
     }
   };
 
@@ -38,7 +77,7 @@ export class Editor2DConfig extends FeetToPixel {
     ratioOne: 1 // Snapping correction of line to the nearest point it stays same as '1'
   };
 
-  snapInitPoint(point, gridSize, ratio):number{
+  snapInitPoint(point, gridSize, ratio): number {
     var gridSizeInPX = gridSize * ratio;
     let pt = Math.floor(point / gridSizeInPX) * gridSizeInPX;
     let deviation = point % (gridSizeInPX);

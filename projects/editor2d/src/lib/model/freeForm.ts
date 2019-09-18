@@ -14,11 +14,12 @@ export class FreeForm extends Editor2DConfig {
   circle = [];
   tmpLine;
   cuurentPoint;
-  zoomHandler: any;
+  zoomHandler: ZoomHandler;
 
-  constructor(paper) {
+  constructor(paper,paperconfig) {
     super();
     this.paper = paper;
+    this.paperConfig=paperconfig;
   }
 
   isClosedPolyLoop(lastPoint) {
@@ -41,7 +42,7 @@ export class FreeForm extends Editor2DConfig {
   }
 
   buildPath(paper, point, isClosed, isMoving) {
-    this.zoomHandler = new ZoomHandler()
+    this.zoomHandler = new ZoomHandler(this.paperConfig);
     if (!this.freeFormPath) {
       this.freeFormPath = `M ${point.x},${point.y}`
       this.startingPoint = { x: point.x, y: point.y };

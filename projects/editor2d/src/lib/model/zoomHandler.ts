@@ -1,4 +1,5 @@
 import $ from "jquery";
+import { PaperConfig } from './userConfig';
 
 declare const svgPanZoom: any;
 
@@ -15,8 +16,10 @@ export class ZoomHandler {
   isPanZoomAplly = false;
   xLabels = [];
   yLabels = [];
-  constructor(){
+  paperConfig:any;
+  constructor(paperConfig) {
     this.bindZoomHandler()
+    this.paperConfig=paperConfig;
   }
 
   bindZoomHandler() {
@@ -28,15 +31,16 @@ export class ZoomHandler {
       fit: false,
       center: false,
       dblClickZoomEnabled: false,
-      minZoom: 0,
-      maxZoom: 2,
+      minZoom: 0.5,
+      maxZoom: 30,
       onZoom: (newZoom) => {
         this.isPanZoomAplly = true;
         this.zoomRatio = newZoom;
         var ele = $('.svg-pan-zoom_viewport')[0];
-        this.viewportMatrix = ele.transform.baseVal.consolidate().matrix;        
+        this.viewportMatrix = ele.transform.baseVal.consolidate().matrix;
         var viewboxSizes = this.panZoomInstance.getSizes();
-        this.clearLabels(newZoom);
+        this.maintainFontSize(newZoom);
+        this.maintainStrokeWidth(newZoom);
         var mouseMovepoint = this.panZoomInstance.getMouseMovePoint();
         this.zoomLeftPaper = { x: 0, y: mouseMovepoint.y };
         this.zoomBottomPaper = { x: mouseMovepoint.x, y: 0 };
@@ -57,7 +61,9 @@ export class ZoomHandler {
       controlIconsEnabled: false,
       fit: false,
       center: false,
-      dblClickZoomEnabled: false
+      dblClickZoomEnabled: false,
+      minZoom: 0.5,
+      maxZoom: 30
     });
 
     this.panAndZoomRullerBottomPaper = svgPanZoom('#rullerBottomPaper', {
@@ -66,8 +72,10 @@ export class ZoomHandler {
       controlIconsEnabled: false,
       fit: false,
       center: false,
-      dblClickZoomEnabled: false
-    });    
+      dblClickZoomEnabled: false,
+      minZoom: 0.5,
+      maxZoom: 30
+    });
   }
 
   destroyPanZoom() {
@@ -79,17 +87,36 @@ export class ZoomHandler {
     delete this.panAndZoomRullerBottomPaper
   }
 
-  clearLabels(zoomRatio) {
+  maintainFontSize(zoomRatio) {
+    var trX = "t0," + (10 / zoomRatio);
+    var trY = "t" + (10 / zoomRatio) + ",0";
+    for (var i = 0; i <  this.paperConfig.xLabels.length; i++) {
+      this.paperConfig.xLabels[i].transform(` ${trX} s${1.5 / zoomRatio}`);
+    }
+    for (var i = 0; i < this.paperConfig.yLabels.length; i++) {
+      this.paperConfig.yLabels[i].transform(`${trY}s${1 / zoomRatio}`);
+    }
+  }
+
+  maintainStrokeWidth(zoomRatio) {
     var trX = "t0," + (10 / zoomRatio);
     var trY = "t" + 10 / zoomRatio + ",0";
+    var strokeWidth = .25 / zoomRatio,
+      boldStrokeWidth = .50 / zoomRatio;
 
-    for (var i = 0; i < this.xLabels.length; i++) {
-      this.xLabels[i].attr({ "font-size": 10 / zoomRatio });
-      this.xLabels[i].transform(trX);
-    }
-    for (var i = 0; i < this.yLabels.length; i++) {
-      this.yLabels[i].attr({ "font-size": 10 / zoomRatio });
-      this.yLabels[i].transform(trY);
-    }
+   for(var i=0; i<this.paperConfig.xPaths.length; i++){
+   this.paperConfig.xPaths[i].attr({ "stroke-width":   strokeWidth>0.25? 0.25:strokeWidth});
+   }
+   for(var i=0; i<this.paperConfig.xBoldPaths.length; i++){
+    this.paperConfig.xBoldPaths[i].attr({ "stroke-width":   boldStrokeWidth>0.50? 0.50:boldStrokeWidth});
+  }
+   for(var i=0; i<this.paperConfig.yPaths.length; i++){
+    this.paperConfig.yPaths[i].attr({ "stroke-width": strokeWidth>0.25? 0.25:strokeWidth });
+   }
+   for(var i=0; i<this.paperConfig.yBoldPaths.length; i++){
+    this.paperConfig.yBoldPaths[i].attr({ "stroke-width":  boldStrokeWidth>0.50? 0.50:boldStrokeWidth });
+   }
+
+
   }
 }
