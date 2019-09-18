@@ -17,6 +17,7 @@ export class Editor2DConfig extends FeetToPixel {
 
   viewPortConfig = {
     // Drawable axis area width configuration
+    offset:30,
     widthConfig: {
       vpw: 420, // Viewport width
       vlo: -400, // Viewport Left Offset

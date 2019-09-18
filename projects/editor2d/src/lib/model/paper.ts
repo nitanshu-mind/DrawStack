@@ -33,13 +33,13 @@ export class Paper extends Editor2DConfig {
     let ratio = this.paperConfig.ratio;
     let vpw = this.paperConfig.viewPortConfig.widthConfig.vpw,
       mw = this.paperConfig.viewPortConfig.widthConfig.vlo,
-      pw = this.paperConfig.viewPortConfig.widthConfig.vro;
+      pw = this.paperConfig.viewPortConfig.widthConfig.vro,p_offset=this.paperConfig.viewPortConfig.offset;
 
     let vph = this.paperConfig.viewPortConfig.heightConfig.vph,
       vto = this.paperConfig.viewPortConfig.heightConfig.vto,
       ph = this.paperConfig.viewPortConfig.heightConfig.vbo,pth;
 
-    for (var i = ratio * mw, j = mw; i < (pw + vpw) * ratio; i += ratio * this.paperConfig.gridGap, j += this.paperConfig.gridGap) {
+    for (var i = ratio * mw, j = mw-p_offset; i < (pw + vpw) * ratio; i += ratio * this.paperConfig.gridGap, j += this.paperConfig.gridGap) {
       if (j % 50 == 0) {
         pth=paper.path(`M${i},${vto * ratio}L${i},${((ph + vph) * ratio)}`).attr({ "stroke": "#696969", "stroke-width": 0.50 });
         this.paperConfig.xBoldPaths.push(pth);
@@ -60,13 +60,13 @@ export class Paper extends Editor2DConfig {
 
     let vpw = this.paperConfig.viewPortConfig.widthConfig.vpw,
       mw = this.paperConfig.viewPortConfig.widthConfig.vlo,
-      pw = this.paperConfig.viewPortConfig.widthConfig.vro;
+      pw = this.paperConfig.viewPortConfig.widthConfig.vro,p_offset=this.paperConfig.viewPortConfig.offset;;
 
     let vph = this.paperConfig.viewPortConfig.heightConfig.vph,
       vto = this.paperConfig.viewPortConfig.heightConfig.vto,
       ph = this.paperConfig.viewPortConfig.heightConfig.vbo,path;
 
-    for (var i = ratio * vto, j = vph + ph; i < (ph + vph) * ratio; i += ratio * this.paperConfig.gridGap, j -= this.paperConfig.gridGap) {
+    for (var i = ratio * vto, j = vph + ph-p_offset; i < (ph + vph) * ratio; i += ratio * this.paperConfig.gridGap, j -= this.paperConfig.gridGap) {
       if (j % 50 == 0) {
         path=paper.path(`M ${mw * ratio},${i}L${((pw + vpw) * ratio)},${i}`).attr({ "stroke": "#696969", "stroke-width": 0.50 });
         this.paperConfig.yBoldPaths.push(path);
